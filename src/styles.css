@@ -1,0 +1,939 @@
+/* FINANCEBRO // BRUTALIST DESIGN SYSTEM */
+
+/* ========================================
+   CSS VARIABLES
+   ======================================== */
+:root {
+    --bg-black: #0a0a0a;
+    --raw-white: #f0f0e8;
+    --brutal-red: #ff3333;
+    --signal-green: #00ff66;
+    --warning-yellow: #ffcc00;
+    --data-blue: #0066ff;
+    --grid-gray: #1a1a1a;
+    --border-thick: 4px;
+    --border-brutal: 8px;
+}
+
+/* ========================================
+   RESET & BASE
+   ======================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--bg-black);
+    color: var(--raw-white);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: crosshair;
+}
+
+/* ========================================
+   SCANLINE & NOISE EFFECTS
+   ======================================== */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.1) 2px,
+        rgba(0, 0, 0, 0.1) 4px
+    );
+    pointer-events: none;
+    z-index: 1000;
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+}
+
+/* ========================================
+   LAYOUT
+   ======================================== */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.main-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+/* ========================================
+   HEADER
+   ======================================== */
+header {
+    border: var(--border-brutal) solid var(--raw-white);
+    background: var(--bg-black);
+    padding: 30px;
+    margin-bottom: 40px;
+    position: relative;
+    animation: glitch-in 0.5s ease-out;
+}
+
+header::before {
+    content: 'LIVE';
+    position: absolute;
+    top: -15px;
+    right: 30px;
+    background: var(--brutal-red);
+    color: var(--bg-black);
+    padding: 5px 20px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    animation: blink 1s infinite;
+}
+
+.logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 10vw, 8rem);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+}
+
+.logo span {
+    color: var(--brutal-red);
+}
+
+.subtitle {
+    font-size: 0.9rem;
+    color: var(--signal-green);
+    margin-top: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+}
+
+.timestamp {
+    position: absolute;
+    bottom: 10px;
+    right: 30px;
+    font-size: 0.75rem;
+    color: var(--warning-yellow);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* ========================================
+   SECTION HEADERS
+   ======================================== */
+.section-header {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 15px 0;
+    border-bottom: var(--border-thick) solid var(--raw-white);
+}
+
+.section-header h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    letter-spacing: 0.1em;
+}
+
+.section-header::after {
+    content: '';
+    flex: 1;
+    height: 2px;
+    background: repeating-linear-gradient(
+        90deg,
+        var(--raw-white) 0px,
+        var(--raw-white) 10px,
+        transparent 10px,
+        transparent 20px
+    );
+}
+
+/* ========================================
+   STOCK CARDS
+   ======================================== */
+.stock-card {
+    grid-column: span 4;
+    border: var(--border-thick) solid var(--raw-white);
+    background: var(--grid-gray);
+    position: relative;
+    transition: all 0.2s ease;
+    animation: card-load 0.6s ease-out backwards;
+}
+
+.stock-card:nth-child(2) { animation-delay: 0.1s; }
+.stock-card:nth-child(3) { animation-delay: 0.2s; }
+.stock-card:nth-child(4) { animation-delay: 0.3s; }
+
+.stock-card:hover {
+    transform: translate(-5px, -5px);
+    box-shadow: 10px 10px 0 var(--raw-white);
+}
+
+.stock-card::before {
+    content: attr(data-rank);
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    width: 50px;
+    height: 50px;
+    background: var(--brutal-red);
+    color: var(--bg-black);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: var(--border-thick) solid var(--raw-white);
+}
+
+.card-header {
+    background: var(--raw-white);
+    color: var(--bg-black);
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-body {
+    padding: 25px;
+}
+
+/* ========================================
+   TICKER & PRICE
+   ======================================== */
+.ticker {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    line-height: 1;
+}
+
+.company-name {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    opacity: 0.7;
+}
+
+.price-tag {
+    text-align: right;
+}
+
+.current-price {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.price-change {
+    font-size: 0.8rem;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.price-change.up {
+    color: var(--signal-green);
+    background: var(--bg-black);
+    padding: 2px 8px;
+}
+
+.price-change.down {
+    color: var(--brutal-red);
+    background: var(--bg-black);
+    padding: 2px 8px;
+}
+
+/* ========================================
+   METRICS
+   ======================================== */
+.metric-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px dashed rgba(240, 240, 232, 0.2);
+}
+
+.metric-row:last-child {
+    border-bottom: none;
+}
+
+.metric-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgba(240, 240, 232, 0.6);
+}
+
+.metric-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.metric-value.highlight-good {
+    color: var(--signal-green);
+}
+
+.metric-value.highlight-warn {
+    color: var(--warning-yellow);
+}
+
+.metric-value.highlight-bad {
+    color: var(--brutal-red);
+}
+
+.vs-industry {
+    font-size: 0.65rem;
+    padding: 3px 8px;
+    margin-left: 10px;
+    border: 1px solid currentColor;
+}
+
+/* ========================================
+   COMPARISON TABLE
+   ======================================== */
+.comparison-section {
+    grid-column: 1 / -1;
+    border: var(--border-brutal) solid var(--warning-yellow);
+    background: var(--grid-gray);
+    overflow: hidden;
+}
+
+.comparison-header {
+    background: var(--warning-yellow);
+    color: var(--bg-black);
+    padding: 20px 30px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 0.1em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.comparison-header span {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 400;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    background: var(--bg-black);
+    padding: 15px 20px;
+    text-align: left;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    border-bottom: 2px solid var(--warning-yellow);
+}
+
+.data-table td {
+    padding: 20px;
+    border-bottom: 1px solid rgba(240, 240, 232, 0.1);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.data-table tr:hover td {
+    background: rgba(255, 204, 0, 0.1);
+}
+
+.data-table .stock-col {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    width: 120px;
+}
+
+/* ========================================
+   BAR VISUALIZATIONS
+   ======================================== */
+.bar-cell {
+    position: relative;
+    min-width: 200px;
+}
+
+.bar-visual {
+    height: 30px;
+    position: relative;
+    background: rgba(240, 240, 232, 0.1);
+}
+
+.bar-fill {
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    transition: width 0.8s ease-out;
+}
+
+.bar-value {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: 700;
+    z-index: 2;
+}
+
+/* ========================================
+   ANALYSIS PANEL
+   ======================================== */
+.analysis-panel {
+    grid-column: 1 / -1;
+    border: var(--border-brutal) solid var(--signal-green);
+    background: var(--bg-black);
+}
+
+.analysis-header {
+    background: var(--signal-green);
+    color: var(--bg-black);
+    padding: 20px 30px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 0.1em;
+}
+
+.analysis-content {
+    padding: 30px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+/* ========================================
+   INSIGHT BOXES
+   ======================================== */
+.insight-box {
+    border: 2px solid rgba(240, 240, 232, 0.3);
+    padding: 25px;
+    position: relative;
+}
+
+.insight-box::before {
+    content: attr(data-num);
+    position: absolute;
+    top: -12px;
+    left: 20px;
+    background: var(--bg-black);
+    padding: 0 10px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    color: var(--signal-green);
+}
+
+.insight-box h4 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+    color: var(--raw-white);
+}
+
+.insight-box p {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: rgba(240, 240, 232, 0.8);
+}
+
+/* ========================================
+   TERMINAL FOOTER
+   ======================================== */
+.terminal-footer {
+    grid-column: 1 / -1;
+    border: var(--border-thick) solid var(--raw-white);
+    background: var(--bg-black);
+    padding: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+}
+
+.terminal-line {
+    margin: 5px 0;
+    opacity: 0;
+    animation: type-in 0.3s ease-out forwards;
+}
+
+.terminal-line:nth-child(1) { animation-delay: 0.5s; }
+.terminal-line:nth-child(2) { animation-delay: 0.8s; }
+.terminal-line:nth-child(3) { animation-delay: 1.1s; }
+.terminal-line:nth-child(4) { animation-delay: 1.4s; }
+
+.terminal-line::before {
+    content: '>';
+    color: var(--signal-green);
+    margin-right: 10px;
+}
+
+.terminal-line span {
+    color: var(--warning-yellow);
+}
+
+/* ========================================
+   LEGEND
+   ======================================== */
+.legend {
+    display: flex;
+    gap: 30px;
+    padding: 15px 0;
+    font-size: 0.75rem;
+    border-top: 1px solid rgba(240, 240, 232, 0.2);
+    margin-top: 15px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.legend-dot {
+    width: 12px;
+    height: 12px;
+}
+
+.legend-dot.good { background: var(--signal-green); }
+.legend-dot.warn { background: var(--warning-yellow); }
+.legend-dot.bad { background: var(--brutal-red); }
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+@keyframes glitch-in {
+    0% { transform: translateX(-100%); opacity: 0; }
+    50% { transform: translateX(10px); }
+    100% { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+}
+
+@keyframes card-load {
+    from {
+        opacity: 0;
+        transform: translateY(30px) rotateX(-10deg);
+    }
+}
+
+@keyframes type-in {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 1024px) {
+    .stock-card {
+        grid-column: span 6;
+    }
+    .analysis-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .stock-card {
+        grid-column: span 12;
+    }
+    .main-grid {
+        gap: 30px;
+    }
+}
+
+/* ========================================
+   EXCHANGE TABS
+   ======================================== */
+.exchange-tabs {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border: var(--border-thick) solid var(--raw-white);
+    background: var(--bg-black);
+}
+
+.tab-btn {
+    background: var(--grid-gray);
+    border: none;
+    border-right: var(--border-thick) solid var(--raw-white);
+    padding: 20px 40px;
+    cursor: pointer;
+    font-family: 'Bebas Neue', sans-serif;
+    color: var(--raw-white);
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+}
+
+.tab-btn:hover {
+    background: var(--bg-black);
+}
+
+.tab-btn.active {
+    background: var(--raw-white);
+    color: var(--bg-black);
+}
+
+.tab-label {
+    font-size: 2.5rem;
+    line-height: 1;
+    letter-spacing: 0.05em;
+}
+
+.tab-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    opacity: 0.7;
+}
+
+.tab-btn.active .tab-count {
+    color: var(--brutal-red);
+    opacity: 1;
+}
+
+.tab-info {
+    flex: 1;
+    text-align: right;
+    padding-right: 30px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--signal-green);
+    letter-spacing: 0.1em;
+}
+
+/* ========================================
+   SEARCH & FILTER BAR
+   ======================================== */
+.search-bar {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+    border: var(--border-thick) solid var(--raw-white);
+    background: var(--grid-gray);
+}
+
+.search-bar input {
+    flex: 1;
+    background: var(--bg-black);
+    border: none;
+    padding: 20px 25px;
+    font-family: 'Space Mono', monospace;
+    font-size: 1rem;
+    color: var(--raw-white);
+    letter-spacing: 0.05em;
+    border-right: var(--border-thick) solid var(--raw-white);
+}
+
+.search-bar input::placeholder {
+    color: rgba(240, 240, 232, 0.4);
+}
+
+.search-bar input:focus {
+    outline: none;
+    background: #111;
+}
+
+.filter-btns {
+    display: flex;
+    align-items: stretch;
+}
+
+.filter-btn {
+    background: transparent;
+    border: none;
+    border-right: 2px solid rgba(240, 240, 232, 0.2);
+    padding: 15px 25px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    color: rgba(240, 240, 232, 0.5);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.1em;
+}
+
+.filter-btn:last-child {
+    border-right: none;
+}
+
+.filter-btn:hover {
+    color: var(--raw-white);
+    background: rgba(240, 240, 232, 0.05);
+}
+
+.filter-btn.active {
+    color: var(--bg-black);
+    background: var(--warning-yellow);
+}
+
+.filter-btn[data-filter="undervalued"].active {
+    background: var(--signal-green);
+}
+
+.filter-btn[data-filter="overvalued"].active {
+    background: var(--brutal-red);
+}
+
+/* ========================================
+   INDUSTRY BAR
+   ======================================== */
+.industry-bar {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    border: var(--border-thick) solid var(--data-blue);
+    background: var(--grid-gray);
+    overflow: hidden;
+}
+
+.industry-label {
+    background: var(--data-blue);
+    color: var(--bg-black);
+    padding: 15px 25px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+}
+
+.industry-btns {
+    display: flex;
+    flex-wrap: wrap;
+    flex: 1;
+    padding: 8px;
+    gap: 8px;
+}
+
+.industry-btn {
+    background: transparent;
+    border: 2px solid rgba(240, 240, 232, 0.3);
+    padding: 10px 18px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    color: rgba(240, 240, 232, 0.6);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.08em;
+}
+
+.industry-btn:hover {
+    color: var(--raw-white);
+    border-color: var(--raw-white);
+    background: rgba(240, 240, 232, 0.05);
+}
+
+.industry-btn.active {
+    color: var(--bg-black);
+    background: var(--data-blue);
+    border-color: var(--data-blue);
+}
+
+.industry-btn[data-industry="Defence"].active {
+    background: var(--brutal-red);
+    border-color: var(--brutal-red);
+}
+
+.industry-btn[data-industry="Technology"].active {
+    background: var(--signal-green);
+    border-color: var(--signal-green);
+}
+
+.industry-btn[data-industry="Financials"].active {
+    background: var(--warning-yellow);
+    border-color: var(--warning-yellow);
+}
+
+.industry-btn[data-industry="Energy"].active {
+    background: #ff6600;
+    border-color: #ff6600;
+}
+
+.industry-btn[data-industry="Healthcare"].active {
+    background: #00ccff;
+    border-color: #00ccff;
+}
+
+/* ========================================
+   STOCK GRID
+   ======================================== */
+.stock-grid {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    padding: 20px 0;
+}
+
+/* ========================================
+   PAGINATION
+   ======================================== */
+.pagination {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border: var(--border-thick) solid var(--raw-white);
+    background: var(--grid-gray);
+    margin-top: 20px;
+}
+
+.page-info {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: rgba(240, 240, 232, 0.6);
+    letter-spacing: 0.1em;
+}
+
+.page-btns {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.page-btn {
+    background: var(--bg-black);
+    border: 2px solid var(--raw-white);
+    padding: 10px 20px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    color: var(--raw-white);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.page-btn:hover {
+    background: var(--raw-white);
+    color: var(--bg-black);
+}
+
+.page-btn.active {
+    background: var(--brutal-red);
+    border-color: var(--brutal-red);
+    color: var(--bg-black);
+}
+
+.page-dots {
+    color: rgba(240, 240, 232, 0.4);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* ========================================
+   STATUS INDICATOR
+   ======================================== */
+.status-ready {
+    color: var(--signal-green);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* ========================================
+   RESPONSIVE - EXTENDED
+   ======================================== */
+@media (max-width: 1200px) {
+    .stock-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .stock-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .exchange-tabs {
+        flex-wrap: wrap;
+    }
+
+    .tab-btn {
+        flex: 1;
+        min-width: 120px;
+    }
+
+    .tab-info {
+        width: 100%;
+        text-align: center;
+        padding: 15px;
+        border-top: 2px solid rgba(240, 240, 232, 0.2);
+    }
+
+    .search-bar {
+        flex-direction: column;
+    }
+
+    .search-bar input {
+        border-right: none;
+        border-bottom: var(--border-thick) solid var(--raw-white);
+    }
+
+    .filter-btns {
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        flex: 1;
+        text-align: center;
+        min-width: 80px;
+    }
+
+    .pagination {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .page-btns {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .industry-bar {
+        flex-direction: column;
+    }
+
+    .industry-label {
+        width: 100%;
+        text-align: center;
+        padding: 12px;
+    }
+
+    .industry-btns {
+        justify-content: center;
+        padding: 12px;
+    }
+
+    .industry-btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+}

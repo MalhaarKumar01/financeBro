@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FINANCEBRO // VALUATION TERMINAL</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">FINANCE<span>BRO</span></div>
+            <div class="subtitle">Valuation Terminal // P/E & PEG Analysis</div>
+            <div class="timestamp" id="timestamp">LOADING...</div>
+        </header>
+
+        <div class="main-grid">
+            <!-- Exchange Tabs -->
+            <div class="exchange-tabs">
+                <button class="tab-btn active" data-exchange="nasdaq">
+                    <span class="tab-label">NASDAQ</span>
+                    <span class="tab-count">50 STOCKS</span>
+                </button>
+                <button class="tab-btn" data-exchange="tsx">
+                    <span class="tab-label">TSX</span>
+                    <span class="tab-count">50 STOCKS</span>
+                </button>
+                <div class="tab-info">
+                    <span id="current-exchange">NASDAQ</span> // <span id="stock-count">50</span> SECURITIES LOADED
+                </div>
+            </div>
+
+            <!-- Search & Filter -->
+            <div class="search-bar">
+                <input type="text" id="stock-search" placeholder="SEARCH TICKER OR COMPANY...">
+                <div class="filter-btns">
+                    <button class="filter-btn active" data-filter="all">ALL</button>
+                    <button class="filter-btn" data-filter="undervalued">UNDERVALUED</button>
+                    <button class="filter-btn" data-filter="fair">FAIR</button>
+                    <button class="filter-btn" data-filter="overvalued">OVERVALUED</button>
+                </div>
+            </div>
+
+            <!-- Industry Filter -->
+            <div class="industry-bar">
+                <div class="industry-label">SECTOR:</div>
+                <div class="industry-btns" id="industry-btns">
+                    <button class="industry-btn active" data-industry="all">ALL</button>
+                    <button class="industry-btn" data-industry="Technology">TECH</button>
+                    <button class="industry-btn" data-industry="Defence">DEFENCE</button>
+                    <button class="industry-btn" data-industry="Financials">FINANCIALS</button>
+                    <button class="industry-btn" data-industry="Healthcare">HEALTHCARE</button>
+                    <button class="industry-btn" data-industry="Energy">ENERGY</button>
+                    <button class="industry-btn" data-industry="Industrials">INDUSTRIALS</button>
+                    <button class="industry-btn" data-industry="Consumer Cyclical">CONSUMER</button>
+                    <button class="industry-btn" data-industry="Consumer Defensive">STAPLES</button>
+                    <button class="industry-btn" data-industry="Materials">MATERIALS</button>
+                    <button class="industry-btn" data-industry="Utilities">UTILITIES</button>
+                    <button class="industry-btn" data-industry="Telecom">TELECOM</button>
+                    <button class="industry-btn" data-industry="Real Estate">REAL ESTATE</button>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h2>STOCK VALUATIONS</h2>
+            </div>
+
+            <!-- Stock Grid Container -->
+            <div class="stock-grid" id="stock-grid">
+                <!-- Stocks will be rendered here by JavaScript -->
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination">
+                <!-- Pagination buttons rendered by JS -->
+            </div>
+
+            <!-- Terminal Footer -->
+            <div class="terminal-footer">
+                <div class="terminal-line">System initialized: <span>FINANCEBRO v3.0</span></div>
+                <div class="terminal-line">Data sources: <span>NASDAQ, TSX, Alpha Vantage, Financial Modeling Prep</span></div>
+                <div class="terminal-line">Analysis complete: <span id="stats-line">100 stocks processed // 500 metrics evaluated</span></div>
+                <div class="terminal-line">Status: <span class="status-ready">READY FOR ANALYSIS</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // STOCK DATA - 50 NASDAQ + 50 TSX
+        // ============================================
+        const stockData = {
+            nasdaq: [
+                // Defence Stocks
+                { ticker: 'LMT', name: 'Lockheed Martin', price: 452.80, change: 1.23, pe: 16.80, forwardPe: 15.20, peg: 1.68, growth: 10.0, industry: 'Defence', industryPe: 18.0 },
+                { ticker: 'RTX', name: 'RTX Corporation', price: 92.45, change: 0.78, pe: 32.50, forwardPe: 18.90, peg: 1.45, growth: 22.4, industry: 'Defence', industryPe: 18.0 },
+                { ticker: 'NOC', name: 'Northrop Grumman', price: 468.90, change: 1.56, pe: 18.20, forwardPe: 16.80, peg: 1.82, growth: 10.0, industry: 'Defence', industryPe: 18.0 },
+                { ticker: 'GD', name: 'General Dynamics', price: 285.60, change: 0.89, pe: 21.40, forwardPe: 19.50, peg: 2.14, growth: 10.0, industry: 'Defence', industryPe: 18.0 },
+                { ticker: 'BA', name: 'Boeing Co.', price: 178.90, change: -2.34, pe: 45.80, forwardPe: 22.40, peg: 1.15, growth: 39.8, industry: 'Defence', industryPe: 18.0 },
+                { ticker: 'LHX', name: 'L3Harris Technologies', price: 215.40, change: 1.12, pe: 24.60, forwardPe: 18.90, peg: 1.64, growth: 15.0, industry: 'Defence', industryPe: 18.0 },
+                { ticker: 'HII', name: 'Huntington Ingalls', price: 245.80, change: 0.67, pe: 15.80, forwardPe: 14.20, peg: 1.58, growth: 10.0, industry: 'Defence', industryPe: 18.0 },
+                { ticker: 'TXT', name: 'Textron Inc.', price: 88.90, change: 0.45, pe: 18.40, forwardPe: 15.80, peg: 1.23, growth: 15.0, industry: 'Defence', industryPe: 18.0 },
+                // Technology
+                { ticker: 'AAPL', name: 'Apple Inc.', price: 193.42, change: 1.24, pe: 30.15, forwardPe: 28.50, peg: 2.86, growth: 10.5, industry: 'Technology', industryPe: 28.5 },
+                { ticker: 'MSFT', name: 'Microsoft Corp.', price: 378.91, change: 0.89, pe: 35.20, forwardPe: 31.40, peg: 2.17, growth: 16.2, industry: 'Technology', industryPe: 28.5 },
+                { ticker: 'GOOGL', name: 'Alphabet Inc.', price: 141.80, change: -0.32, pe: 23.45, forwardPe: 20.10, peg: 1.12, growth: 20.9, industry: 'Technology', industryPe: 28.5 },
+                { ticker: 'AMZN', name: 'Amazon.com Inc.', price: 178.25, change: 2.15, pe: 62.30, forwardPe: 41.20, peg: 1.85, growth: 33.7, industry: 'Consumer Cyclical', industryPe: 22.0 },
+                { ticker: 'NVDA', name: 'NVIDIA Corp.', price: 495.22, change: 3.45, pe: 65.80, forwardPe: 32.50, peg: 0.92, growth: 71.5, industry: 'Technology', industryPe: 28.5 },
+                { ticker: 'META', name: 'Meta Platforms', price: 505.95, change: 1.87, pe: 28.90, forwardPe: 23.40, peg: 1.25, growth: 23.1, industry: 'Technology', industryPe: 28.5 },
+                { ticker: 'TSLA', name: 'Tesla Inc.', price: 248.50, change: -1.23, pe: 78.40, forwardPe: 58.30, peg: 3.15, growth: 24.9, industry: 'Consumer Cyclical', industryPe: 22.0 },
+                { ticker: 'BRK.B', name: 'Berkshire Hathaway', price: 363.27, change: 0.45, pe: 9.80, forwardPe: 22.10, peg: 1.45, growth: 6.8, industry: 'Financials', industryPe: 12.5 },
+                { ticker: 'LLY', name: 'Eli Lilly & Co.', price: 582.40, change: 2.34, pe: 85.20, forwardPe: 42.30, peg: 1.78, growth: 47.9, industry: 'Healthcare', industryPe: 22.0 },
+                { ticker: 'V', name: 'Visa Inc.', price: 279.85, change: 0.92, pe: 30.45, forwardPe: 25.80, peg: 1.89, growth: 16.1, industry: 'Financials', industryPe: 12.5 },
+                { ticker: 'UNH', name: 'UnitedHealth Group', price: 527.30, change: -0.78, pe: 22.10, forwardPe: 18.90, peg: 1.52, growth: 14.5, industry: 'Healthcare', industryPe: 22.0 },
+                { ticker: 'JPM', name: 'JPMorgan Chase', price: 195.42, change: 1.12, pe: 11.80, forwardPe: 10.50, peg: 1.18, growth: 10.0, industry: 'Financials', industryPe: 12.5 },
+                { ticker: 'XOM', name: 'Exxon Mobil', price: 104.55, change: 0.67, pe: 12.30, forwardPe: 11.80, peg: 0.95, growth: 12.9, industry: 'Energy', industryPe: 10.5 },
+                { ticker: 'JNJ', name: 'Johnson & Johnson', price: 156.78, change: 0.23, pe: 15.20, forwardPe: 14.50, peg: 2.45, growth: 6.2, industry: 'Healthcare', industryPe: 22.0 },
+                { ticker: 'WMT', name: 'Walmart Inc.', price: 165.30, change: 0.89, pe: 28.90, forwardPe: 24.30, peg: 3.21, growth: 9.0, industry: 'Consumer Defensive', industryPe: 24.0 },
+                { ticker: 'MA', name: 'Mastercard Inc.', price: 456.20, change: 1.45, pe: 35.60, forwardPe: 29.80, peg: 1.95, growth: 18.3, industry: 'Financials', industryPe: 12.5 },
+                { ticker: 'PG', name: 'Procter & Gamble', price: 159.45, change: 0.34, pe: 26.80, forwardPe: 24.10, peg: 3.85, growth: 7.0, industry: 'Consumer Defensive', industryPe: 24.0 },
+                { ticker: 'HD', name: 'Home Depot', price: 348.90, change: 1.23, pe: 23.40, forwardPe: 21.50, peg: 2.08, growth: 11.3, industry: 'Consumer Cyclical', industryPe: 22.0 },
+                { ticker: 'CVX', name: 'Chevron Corp.', price: 149.80, change: 0.56, pe: 11.90, forwardPe: 11.20, peg: 0.88, growth: 13.5, industry: 'Energy', industryPe: 10.5 },
+                { ticker: 'MRK', name: 'Merck & Co.', price: 108.25, change: -0.45, pe: 18.70, forwardPe: 13.20, peg: 1.35, growth: 13.9, industry: 'Healthcare', industryPe: 22.0 },
+                { ticker: 'ABBV', name: 'AbbVie Inc.', price: 174.60, change: 0.78, pe: 21.30, forwardPe: 13.80, peg: 1.42, growth: 15.0, industry: 'Healthcare', industryPe: 22.0 },
+                { ticker: 'PEP', name: 'PepsiCo Inc.', price: 168.90, change: 0.23, pe: 24.50, forwardPe: 21.80, peg: 3.15, growth: 7.8, industry: 'Consumer Defensive', industryPe: 24.0 },
+                { ticker: 'COST', name: 'Costco Wholesale', price: 592.40, change: 1.89, pe: 45.30, forwardPe: 40.20, peg: 4.12, growth: 11.0, industry: 'Consumer Defensive', industryPe: 24.0 },
+                { ticker: 'KO', name: 'Coca-Cola Co.', price: 59.85, change: 0.12, pe: 23.80, forwardPe: 21.50, peg: 3.40, growth: 7.0, industry: 'Consumer Defensive', industryPe: 24.0 },
+                { ticker: 'AVGO', name: 'Broadcom Inc.', price: 112.45, change: 2.34, pe: 32.60, forwardPe: 22.80, peg: 1.15, growth: 28.3, industry: 'Technology', industryPe: 28.5 },
+                { ticker: 'TMO', name: 'Thermo Fisher', price: 532.80, change: 1.56, pe: 35.20, forwardPe: 25.40, peg: 2.35, growth: 15.0, industry: 'Healthcare', industryPe: 22.0 },
+                { ticker: 'ADBE', name: 'Adobe Inc.', price: 524.30, change: 2.12, pe: 44.80, forwardPe: 28.90, peg: 1.89, growth: 23.7, industry: 'Technology', industryPe: 28.5 },
+                { ticker: 'CRM', name: 'Salesforce Inc.', price: 272.15, change: 1.78, pe: 48.90, forwardPe: 28.50, peg: 1.62, growth: 30.2, industry: 'Technology', industryPe: 28.5 },
+                { ticker: 'ORCL', name: 'Oracle Corp.', price: 118.45, change: 0.89, pe: 35.20, forwardPe: 21.30, peg: 1.85, growth: 19.0, industry: 'Technology', industryPe: 28.5 },
+                { ticker: 'AMD', name: 'AMD Inc.', price: 147.80, change: 3.21, pe: 298.50, forwardPe: 42.30, peg: 0.78, growth: 382.7, industry: 'Technology', industryPe: 28.5 },
+                { ticker: 'NFLX', name: 'Netflix Inc.', price: 478.90, change: 2.45, pe: 45.60, forwardPe: 32.10, peg: 1.25, growth: 36.5, industry: 'Technology', industryPe: 28.5 },
+                { ticker: 'INTC', name: 'Intel Corp.', price: 45.20, change: -0.89, pe: 108.90, forwardPe: 28.50, peg: 2.85, growth: 38.2, industry: 'Technology', industryPe: 28.5 },
+                { ticker: 'CSCO', name: 'Cisco Systems', price: 50.35, change: 0.34, pe: 15.20, forwardPe: 13.80, peg: 2.53, growth: 6.0, industry: 'Technology', industryPe: 28.5 },
+                { ticker: 'ACN', name: 'Accenture PLC', price: 338.90, change: 1.23, pe: 28.40, forwardPe: 25.20, peg: 2.84, growth: 10.0, industry: 'Technology', industryPe: 28.5 },
+                { ticker: 'QCOM', name: 'Qualcomm Inc.', price: 145.60, change: 1.89, pe: 22.80, forwardPe: 15.40, peg: 0.95, growth: 24.0, industry: 'Technology', industryPe: 28.5 },
+                { ticker: 'TXN', name: 'Texas Instruments', price: 170.25, change: 0.78, pe: 22.40, forwardPe: 25.30, peg: 3.20, growth: 7.0, industry: 'Technology', industryPe: 28.5 },
+                { ticker: 'NOW', name: 'ServiceNow Inc.', price: 705.30, change: 2.56, pe: 78.90, forwardPe: 52.40, peg: 2.15, growth: 36.7, industry: 'Technology', industryPe: 28.5 },
+                { ticker: 'INTU', name: 'Intuit Inc.', price: 628.45, change: 1.45, pe: 58.70, forwardPe: 35.20, peg: 2.45, growth: 24.0, industry: 'Technology', industryPe: 28.5 },
+                { ticker: 'AMAT', name: 'Applied Materials', price: 159.80, change: 2.12, pe: 22.30, forwardPe: 18.90, peg: 1.12, growth: 19.9, industry: 'Technology', industryPe: 28.5 },
+                { ticker: 'BKNG', name: 'Booking Holdings', price: 3542.80, change: 45.60, pe: 22.40, forwardPe: 18.50, peg: 1.35, growth: 16.6, industry: 'Consumer Cyclical', industryPe: 22.0 },
+                { ticker: 'ISRG', name: 'Intuitive Surgical', price: 348.90, change: 3.45, pe: 68.50, forwardPe: 52.30, peg: 3.25, growth: 21.1, industry: 'Healthcare', industryPe: 22.0 },
+                { ticker: 'MDLZ', name: 'Mondelez Intl', price: 72.45, change: 0.23, pe: 22.80, forwardPe: 20.10, peg: 2.85, growth: 8.0, industry: 'Consumer Defensive', industryPe: 24.0 },
+                { ticker: 'GILD', name: 'Gilead Sciences', price: 81.20, change: 0.45, pe: 12.30, forwardPe: 11.80, peg: 1.54, growth: 8.0, industry: 'Healthcare', industryPe: 22.0 },
+                { ticker: 'REGN', name: 'Regeneron Pharma', price: 892.30, change: 5.67, pe: 22.40, forwardPe: 18.90, peg: 0.95, growth: 23.6, industry: 'Healthcare', industryPe: 22.0 },
+                { ticker: 'VRTX', name: 'Vertex Pharma', price: 405.80, change: 2.34, pe: 28.90, forwardPe: 22.10, peg: 1.15, growth: 25.1, industry: 'Healthcare', industryPe: 22.0 },
+                { ticker: 'LRCX', name: 'Lam Research', price: 742.50, change: 8.90, pe: 24.60, forwardPe: 20.30, peg: 1.23, growth: 20.0, industry: 'Technology', industryPe: 28.5 },
+                { ticker: 'MU', name: 'Micron Technology', price: 84.90, change: 1.56, pe: 125.40, forwardPe: 12.80, peg: 0.45, growth: 278.7, industry: 'Technology', industryPe: 28.5 },
+                { ticker: 'PANW', name: 'Palo Alto Networks', price: 295.40, change: 3.21, pe: 48.90, forwardPe: 42.30, peg: 1.85, growth: 26.4, industry: 'Technology', industryPe: 28.5 }
+            ],
+            tsx: [
+                // Defence Stocks
+                { ticker: 'CAE.TO', name: 'CAE Inc.', price: 28.45, change: 0.56, pe: 32.80, forwardPe: 22.40, peg: 1.64, growth: 20.0, industry: 'Defence', industryPe: 18.0 },
+                { ticker: 'HPS.A.TO', name: 'Hammond Power Solutions', price: 142.80, change: 2.34, pe: 18.90, forwardPe: 15.20, peg: 0.95, growth: 19.9, industry: 'Defence', industryPe: 18.0 },
+                { ticker: 'MDA.TO', name: 'MDA Ltd.', price: 22.60, change: 0.89, pe: 45.20, forwardPe: 28.90, peg: 1.51, growth: 30.0, industry: 'Defence', industryPe: 18.0 },
+                { ticker: 'BDT.TO', name: 'Bird Construction', price: 28.90, change: 0.45, pe: 15.80, forwardPe: 14.20, peg: 1.32, growth: 12.0, industry: 'Defence', industryPe: 18.0 },
+                // Financials
+                { ticker: 'RY.TO', name: 'Royal Bank of Canada', price: 135.42, change: 0.89, pe: 12.80, forwardPe: 11.50, peg: 1.28, growth: 10.0, industry: 'Financials', industryPe: 11.5 },
+                { ticker: 'TD.TO', name: 'Toronto-Dominion Bank', price: 82.15, change: 0.45, pe: 11.20, forwardPe: 10.30, peg: 1.40, growth: 8.0, industry: 'Financials', industryPe: 11.5 },
+                { ticker: 'ENB.TO', name: 'Enbridge Inc.', price: 48.90, change: 0.23, pe: 18.50, forwardPe: 16.80, peg: 2.31, growth: 8.0, industry: 'Energy', industryPe: 12.0 },
+                { ticker: 'CNR.TO', name: 'Canadian National Railway', price: 165.80, change: 1.23, pe: 22.40, forwardPe: 19.80, peg: 2.24, growth: 10.0, industry: 'Industrials', industryPe: 18.5 },
+                { ticker: 'BNS.TO', name: 'Bank of Nova Scotia', price: 65.45, change: 0.34, pe: 10.80, forwardPe: 9.90, peg: 1.35, growth: 8.0, industry: 'Financials', industryPe: 11.5 },
+                { ticker: 'CP.TO', name: 'Canadian Pacific Kansas', price: 108.90, change: 0.78, pe: 25.60, forwardPe: 22.30, peg: 1.95, growth: 13.1, industry: 'Industrials', industryPe: 18.5 },
+                { ticker: 'BMO.TO', name: 'Bank of Montreal', price: 125.30, change: 0.56, pe: 12.40, forwardPe: 10.80, peg: 1.24, growth: 10.0, industry: 'Financials', industryPe: 11.5 },
+                { ticker: 'CNQ.TO', name: 'Canadian Natural Resources', price: 85.20, change: 1.12, pe: 12.80, forwardPe: 11.50, peg: 0.85, growth: 15.1, industry: 'Energy', industryPe: 12.0 },
+                { ticker: 'TRP.TO', name: 'TC Energy Corp.', price: 52.45, change: 0.23, pe: 14.20, forwardPe: 12.80, peg: 1.78, growth: 8.0, industry: 'Energy', industryPe: 12.0 },
+                { ticker: 'SU.TO', name: 'Suncor Energy', price: 45.80, change: 0.67, pe: 8.90, forwardPe: 8.20, peg: 0.74, growth: 12.0, industry: 'Energy', industryPe: 12.0 },
+                { ticker: 'CM.TO', name: 'CIBC', price: 65.90, change: 0.34, pe: 10.50, forwardPe: 9.80, peg: 1.31, growth: 8.0, industry: 'Financials', industryPe: 11.5 },
+                { ticker: 'MFC.TO', name: 'Manulife Financial', price: 32.45, change: 0.23, pe: 11.80, forwardPe: 9.50, peg: 0.98, growth: 12.0, industry: 'Financials', industryPe: 11.5 },
+                { ticker: 'ATD.TO', name: 'Alimentation Couche-Tard', price: 78.90, change: 0.89, pe: 18.40, forwardPe: 16.20, peg: 1.84, growth: 10.0, industry: 'Consumer Defensive', industryPe: 20.0 },
+                { ticker: 'ABX.TO', name: 'Barrick Gold', price: 22.15, change: 0.34, pe: 18.90, forwardPe: 14.50, peg: 0.95, growth: 19.9, industry: 'Materials', industryPe: 15.0 },
+                { ticker: 'CVE.TO', name: 'Cenovus Energy', price: 25.80, change: 0.45, pe: 8.20, forwardPe: 7.80, peg: 0.68, growth: 12.1, industry: 'Energy', industryPe: 12.0 },
+                { ticker: 'CSU.TO', name: 'Constellation Software', price: 3245.00, change: 45.00, pe: 95.80, forwardPe: 72.30, peg: 3.19, growth: 30.0, industry: 'Technology', industryPe: 32.0 },
+                { ticker: 'SLF.TO', name: 'Sun Life Financial', price: 68.90, change: 0.45, pe: 12.30, forwardPe: 10.80, peg: 1.23, growth: 10.0, industry: 'Financials', industryPe: 11.5 },
+                { ticker: 'WCN.TO', name: 'Waste Connections', price: 185.40, change: 1.23, pe: 42.80, forwardPe: 35.20, peg: 2.85, growth: 15.0, industry: 'Industrials', industryPe: 18.5 },
+                { ticker: 'IMO.TO', name: 'Imperial Oil', price: 78.50, change: 0.89, pe: 9.80, forwardPe: 9.20, peg: 0.82, growth: 12.0, industry: 'Energy', industryPe: 12.0 },
+                { ticker: 'FNV.TO', name: 'Franco-Nevada', price: 168.90, change: 2.34, pe: 42.30, forwardPe: 35.80, peg: 2.82, growth: 15.0, industry: 'Materials', industryPe: 15.0 },
+                { ticker: 'L.TO', name: 'Loblaw Companies', price: 138.45, change: 0.78, pe: 18.90, forwardPe: 16.50, peg: 1.89, growth: 10.0, industry: 'Consumer Defensive', industryPe: 20.0 },
+                { ticker: 'QSR.TO', name: 'Restaurant Brands', price: 98.20, change: 0.56, pe: 22.40, forwardPe: 18.90, peg: 1.87, growth: 12.0, industry: 'Consumer Cyclical', industryPe: 18.0 },
+                { ticker: 'TRI.TO', name: 'Thomson Reuters', price: 195.80, change: 1.45, pe: 38.90, forwardPe: 32.40, peg: 2.59, growth: 15.0, industry: 'Technology', industryPe: 32.0 },
+                { ticker: 'IFC.TO', name: 'Intact Financial', price: 225.60, change: 1.89, pe: 15.80, forwardPe: 14.20, peg: 1.58, growth: 10.0, industry: 'Financials', industryPe: 11.5 },
+                { ticker: 'DOL.TO', name: 'Dollarama Inc.', price: 102.30, change: 0.89, pe: 32.40, forwardPe: 28.50, peg: 2.16, growth: 15.0, industry: 'Consumer Defensive', industryPe: 20.0 },
+                { ticker: 'NTR.TO', name: 'Nutrien Ltd.', price: 72.45, change: 0.45, pe: 15.80, forwardPe: 12.30, peg: 1.05, growth: 15.0, industry: 'Materials', industryPe: 15.0 },
+                { ticker: 'GIB.A.TO', name: 'CGI Inc.', price: 145.80, change: 0.78, pe: 22.30, forwardPe: 18.90, peg: 1.86, growth: 12.0, industry: 'Technology', industryPe: 32.0 },
+                { ticker: 'FTS.TO', name: 'Fortis Inc.', price: 58.90, change: 0.23, pe: 19.80, forwardPe: 18.20, peg: 2.47, growth: 8.0, industry: 'Utilities', industryPe: 18.0 },
+                { ticker: 'WN.TO', name: 'George Weston', price: 178.90, change: 1.12, pe: 15.40, forwardPe: 14.20, peg: 1.54, growth: 10.0, industry: 'Consumer Defensive', industryPe: 20.0 },
+                { ticker: 'BCE.TO', name: 'BCE Inc.', price: 52.30, change: -0.23, pe: 22.80, forwardPe: 21.50, peg: 3.80, growth: 6.0, industry: 'Telecom', industryPe: 15.0 },
+                { ticker: 'T.TO', name: 'TELUS Corp.', price: 26.80, change: 0.12, pe: 25.40, forwardPe: 22.80, peg: 3.63, growth: 7.0, industry: 'Telecom', industryPe: 15.0 },
+                { ticker: 'RCI.B.TO', name: 'Rogers Communications', price: 54.20, change: 0.34, pe: 18.90, forwardPe: 16.50, peg: 1.89, growth: 10.0, industry: 'Telecom', industryPe: 15.0 },
+                { ticker: 'CCO.TO', name: 'Cameco Corp.', price: 52.80, change: 1.23, pe: 45.60, forwardPe: 28.90, peg: 1.52, growth: 30.0, industry: 'Energy', industryPe: 12.0 },
+                { ticker: 'AEM.TO', name: 'Agnico Eagle Mines', price: 78.90, change: 1.45, pe: 35.80, forwardPe: 22.40, peg: 1.19, growth: 30.1, industry: 'Materials', industryPe: 15.0 },
+                { ticker: 'K.TO', name: 'Kinross Gold', price: 8.45, change: 0.12, pe: 22.30, forwardPe: 14.80, peg: 0.89, growth: 25.1, industry: 'Materials', industryPe: 15.0 },
+                { ticker: 'FM.TO', name: 'First Quantum Minerals', price: 15.80, change: 0.34, pe: 8.90, forwardPe: 6.50, peg: 0.59, growth: 15.1, industry: 'Materials', industryPe: 15.0 },
+                { ticker: 'CCL.B.TO', name: 'CCL Industries', price: 68.90, change: 0.45, pe: 18.40, forwardPe: 16.20, peg: 1.84, growth: 10.0, industry: 'Materials', industryPe: 15.0 },
+                { ticker: 'EMA.TO', name: 'Emera Inc.', price: 52.40, change: 0.23, pe: 18.90, forwardPe: 17.50, peg: 2.70, growth: 7.0, industry: 'Utilities', industryPe: 18.0 },
+                { ticker: 'H.TO', name: 'Hydro One', price: 42.80, change: 0.12, pe: 22.40, forwardPe: 20.80, peg: 3.20, growth: 7.0, industry: 'Utilities', industryPe: 18.0 },
+                { ticker: 'POW.TO', name: 'Power Corp of Canada', price: 38.90, change: 0.23, pe: 10.80, forwardPe: 9.50, peg: 1.08, growth: 10.0, industry: 'Financials', industryPe: 11.5 },
+                { ticker: 'IGM.TO', name: 'IGM Financial', price: 38.50, change: 0.12, pe: 11.20, forwardPe: 10.50, peg: 1.40, growth: 8.0, industry: 'Financials', industryPe: 11.5 },
+                { ticker: 'GWO.TO', name: 'Great-West Lifeco', price: 42.30, change: 0.23, pe: 11.80, forwardPe: 10.20, peg: 1.18, growth: 10.0, industry: 'Financials', industryPe: 11.5 },
+                { ticker: 'NA.TO', name: 'National Bank', price: 112.40, change: 0.78, pe: 11.50, forwardPe: 10.80, peg: 1.15, growth: 10.0, industry: 'Financials', industryPe: 11.5 },
+                { ticker: 'CTC.A.TO', name: 'Canadian Tire', price: 152.80, change: 0.89, pe: 12.40, forwardPe: 11.20, peg: 1.55, growth: 8.0, industry: 'Consumer Cyclical', industryPe: 18.0 },
+                { ticker: 'SAP.TO', name: 'Saputo Inc.', price: 28.90, change: 0.12, pe: 22.80, forwardPe: 18.50, peg: 2.28, growth: 10.0, industry: 'Consumer Defensive', industryPe: 20.0 },
+                { ticker: 'MRU.TO', name: 'Metro Inc.', price: 78.40, change: 0.34, pe: 18.90, forwardPe: 17.20, peg: 2.36, growth: 8.0, industry: 'Consumer Defensive', industryPe: 20.0 },
+                { ticker: 'EMP.A.TO', name: 'Empire Company', price: 38.20, change: 0.23, pe: 12.40, forwardPe: 11.50, peg: 1.55, growth: 8.0, industry: 'Consumer Defensive', industryPe: 20.0 },
+                { ticker: 'X.TO', name: 'TMX Group', price: 35.80, change: 0.34, pe: 22.40, forwardPe: 19.80, peg: 1.87, growth: 12.0, industry: 'Financials', industryPe: 11.5 },
+                { ticker: 'CAR.UN.TO', name: 'Canadian Apartment REIT', price: 48.90, change: 0.23, pe: 28.50, forwardPe: 25.80, peg: 2.85, growth: 10.0, industry: 'Real Estate', industryPe: 22.0 },
+                { ticker: 'BAM.TO', name: 'Brookfield Asset Mgmt', price: 52.40, change: 0.78, pe: 28.90, forwardPe: 22.40, peg: 1.45, growth: 19.9, industry: 'Financials', industryPe: 11.5 }
+            ]
+        };
+
+        // ============================================
+        // STATE
+        // ============================================
+        let currentExchange = 'nasdaq';
+        let currentFilter = 'all';
+        let currentIndustry = 'all';
+        let searchQuery = '';
+        let currentPage = 1;
+        const stocksPerPage = 12;
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        function getValuation(peg) {
+            if (peg < 1) return { label: 'UNDERVALUED', class: 'highlight-good', filter: 'undervalued' };
+            if (peg <= 2) return { label: 'FAIR VALUE', class: 'highlight-warn', filter: 'fair' };
+            return { label: 'OVERVALUED', class: 'highlight-bad', filter: 'overvalued' };
+        }
+
+        function getPeComparison(pe, industryPe) {
+            const diff = ((pe - industryPe) / industryPe * 100).toFixed(0);
+            if (diff < -5) return { text: `${diff}% vs IND`, class: 'highlight-good' };
+            if (diff <= 10) return { text: `+${diff}% vs IND`, class: 'highlight-warn' };
+            return { text: `+${diff}% vs IND`, class: 'highlight-bad' };
+        }
+
+        // ============================================
+        // RENDER FUNCTIONS
+        // ============================================
+        function renderStocks() {
+            const stocks = stockData[currentExchange];
+
+            // Apply filters
+            let filtered = stocks.filter(stock => {
+                // Search filter
+                const matchesSearch = searchQuery === '' ||
+                    stock.ticker.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    stock.name.toLowerCase().includes(searchQuery.toLowerCase());
+
+                // Valuation filter
+                const valuation = getValuation(stock.peg);
+                const matchesFilter = currentFilter === 'all' || valuation.filter === currentFilter;
+
+                // Industry filter
+                const matchesIndustry = currentIndustry === 'all' || stock.industry === currentIndustry;
+
+                return matchesSearch && matchesFilter && matchesIndustry;
+            });
+
+            // Pagination
+            const totalPages = Math.ceil(filtered.length / stocksPerPage);
+            const start = (currentPage - 1) * stocksPerPage;
+            const paginatedStocks = filtered.slice(start, start + stocksPerPage);
+
+            // Render stock cards
+            const grid = document.getElementById('stock-grid');
+            grid.innerHTML = paginatedStocks.map((stock, index) => {
+                const valuation = getValuation(stock.peg);
+                const peComparison = getPeComparison(stock.pe, stock.industryPe);
+                const changeClass = stock.change >= 0 ? 'up' : 'down';
+                const changeSign = stock.change >= 0 ? '+' : '';
+                const rank = String(start + index + 1).padStart(2, '0');
+                const currency = currentExchange === 'tsx' ? 'C$' : '$';
+
+                return `
+                    <div class="stock-card" data-rank="${rank}">
+                        <div class="card-header">
+                            <div>
+                                <div class="ticker">${stock.ticker.replace('.TO', '')}</div>
+                                <div class="company-name">${stock.name}</div>
+                            </div>
+                            <div class="price-tag">
+                                <div class="current-price">${currency}${stock.price.toFixed(2)}</div>
+                                <div class="price-change ${changeClass}">${changeSign}${stock.change.toFixed(2)}%</div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="metric-row">
+                                <span class="metric-label">P/E Ratio (TTM)</span>
+                                <span class="metric-value ${peComparison.class}">${stock.pe.toFixed(2)}<span class="vs-industry">${peComparison.text}</span></span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Forward P/E</span>
+                                <span class="metric-value">${stock.forwardPe.toFixed(2)}</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">PEG Ratio</span>
+                                <span class="metric-value ${valuation.class}">${stock.peg.toFixed(2)}<span class="vs-industry">${valuation.label}</span></span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">5Y EPS Growth</span>
+                                <span class="metric-value">${stock.growth.toFixed(1)}%</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Industry Avg P/E</span>
+                                <span class="metric-value" style="color: rgba(240,240,232,0.5)">${stock.industryPe.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Render pagination
+            renderPagination(totalPages, filtered.length);
+
+            // Update stats
+            document.getElementById('stock-count').textContent = filtered.length;
+            document.getElementById('current-exchange').textContent = currentExchange.toUpperCase();
+            document.getElementById('stats-line').textContent = `${filtered.length} stocks displayed // ${filtered.length * 5} metrics evaluated`;
+        }
+
+        function renderPagination(totalPages, totalStocks) {
+            const pagination = document.getElementById('pagination');
+
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+
+            let html = `<span class="page-info">PAGE ${currentPage} OF ${totalPages} // ${totalStocks} RESULTS</span>`;
+            html += '<div class="page-btns">';
+
+            if (currentPage > 1) {
+                html += `<button class="page-btn" data-page="${currentPage - 1}">&lt; PREV</button>`;
+            }
+
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    html += '<span class="page-dots">...</span>';
+                }
+            }
+
+            if (currentPage < totalPages) {
+                html += `<button class="page-btn" data-page="${currentPage + 1}">NEXT &gt;</button>`;
+            }
+
+            html += '</div>';
+            pagination.innerHTML = html;
+
+            // Add click handlers
+            pagination.querySelectorAll('.page-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentPage = parseInt(btn.dataset.page);
+                    renderStocks();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            });
+        }
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentExchange = btn.dataset.exchange;
+                currentPage = 1;
+                renderStocks();
+            });
+        });
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                currentPage = 1;
+                renderStocks();
+            });
+        });
+
+        document.getElementById('stock-search').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            currentPage = 1;
+            renderStocks();
+        });
+
+        document.querySelectorAll('.industry-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.industry-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentIndustry = btn.dataset.industry;
+                currentPage = 1;
+                renderStocks();
+            });
+        });
+
+        // ============================================
+        // TIMESTAMP
+        // ============================================
+        function updateTime() {
+            const now = new Date();
+            const options = {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            };
+            document.getElementById('timestamp').textContent = now.toLocaleDateString('en-US', options).toUpperCase();
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // ============================================
+        // INITIALIZE
+        // ============================================
+        renderStocks();
+    </script>
+</body>
+</html>
+
