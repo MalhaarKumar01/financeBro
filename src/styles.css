@@ -580,15 +580,16 @@ header::before {
     background: var(--grid-gray);
     border: none;
     border-right: var(--border-thick) solid var(--raw-white);
-    padding: 20px 40px;
+    padding: 15px 20px;
     cursor: pointer;
     font-family: 'Bebas Neue', sans-serif;
     color: var(--raw-white);
     transition: all 0.2s ease;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
+    align-items: center;
+    gap: 3px;
+    min-width: 90px;
 }
 
 .tab-btn:hover {
@@ -601,20 +602,29 @@ header::before {
 }
 
 .tab-label {
-    font-size: 2.5rem;
+    font-size: 1.8rem;
     line-height: 1;
     letter-spacing: 0.05em;
 }
 
+.tab-flag {
+    font-size: 1.2rem;
+    opacity: 0.8;
+}
+
 .tab-count {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
+    font-size: 0.6rem;
     letter-spacing: 0.1em;
     opacity: 0.7;
 }
 
 .tab-btn.active .tab-count {
     color: var(--brutal-red);
+    opacity: 1;
+}
+
+.tab-btn.active .tab-flag {
     opacity: 1;
 }
 
@@ -629,36 +639,72 @@ header::before {
 }
 
 /* ========================================
-   SEARCH & FILTER BAR
+   POWER SEARCH CONTAINER
    ======================================== */
-.search-bar {
+.power-search-container {
     grid-column: 1 / -1;
     display: flex;
-    gap: 20px;
-    align-items: stretch;
+    flex-direction: column;
+    gap: 0;
     border: var(--border-thick) solid var(--raw-white);
     background: var(--grid-gray);
 }
 
+.search-bar {
+    display: flex;
+    gap: 0;
+    align-items: stretch;
+    border-bottom: 2px solid rgba(240, 240, 232, 0.2);
+}
+
+.search-input-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: var(--bg-black);
+    border-right: var(--border-thick) solid var(--raw-white);
+    position: relative;
+}
+
+.search-prefix {
+    color: var(--signal-green);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.2rem;
+    font-weight: 700;
+    padding-left: 20px;
+    animation: blink 1s infinite;
+}
+
 .search-bar input {
     flex: 1;
-    background: var(--bg-black);
+    background: transparent;
     border: none;
-    padding: 20px 25px;
-    font-family: 'Space Mono', monospace;
-    font-size: 1rem;
+    padding: 20px 15px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
     color: var(--raw-white);
-    letter-spacing: 0.05em;
-    border-right: var(--border-thick) solid var(--raw-white);
+    letter-spacing: 0.02em;
 }
 
 .search-bar input::placeholder {
-    color: rgba(240, 240, 232, 0.4);
+    color: rgba(240, 240, 232, 0.35);
+    font-size: 0.8rem;
 }
 
 .search-bar input:focus {
     outline: none;
-    background: #111;
+}
+
+.search-shortcut {
+    position: absolute;
+    right: 15px;
+    background: rgba(240, 240, 232, 0.1);
+    border: 1px solid rgba(240, 240, 232, 0.3);
+    padding: 4px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(240, 240, 232, 0.5);
+    letter-spacing: 0.05em;
 }
 
 .filter-btns {
@@ -699,6 +745,87 @@ header::before {
 
 .filter-btn[data-filter="overvalued"].active {
     background: var(--brutal-red);
+}
+
+/* ========================================
+   SORT CONTROLS
+   ======================================== */
+.sort-controls {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    gap: 8px;
+    flex-wrap: wrap;
+    border-bottom: 2px solid rgba(240, 240, 232, 0.2);
+}
+
+.sort-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    color: var(--data-blue);
+    letter-spacing: 0.1em;
+    margin-right: 5px;
+}
+
+.sort-btn {
+    background: transparent;
+    border: 2px solid rgba(240, 240, 232, 0.2);
+    padding: 6px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(240, 240, 232, 0.5);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.05em;
+}
+
+.sort-btn:hover {
+    color: var(--raw-white);
+    border-color: var(--raw-white);
+}
+
+.sort-btn.active {
+    color: var(--bg-black);
+    background: var(--data-blue);
+    border-color: var(--data-blue);
+}
+
+.index-display {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--warning-yellow);
+    letter-spacing: 0.1em;
+    padding: 6px 12px;
+    border: 2px solid var(--warning-yellow);
+}
+
+/* ========================================
+   SEARCH HELP
+   ======================================== */
+.search-help {
+    display: flex;
+    align-items: center;
+    padding: 8px 15px;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.help-tag {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.85rem;
+    color: var(--brutal-red);
+    letter-spacing: 0.1em;
+}
+
+.search-help code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--signal-green);
+    background: rgba(0, 255, 102, 0.1);
+    padding: 3px 8px;
+    border: 1px solid rgba(0, 255, 102, 0.3);
 }
 
 /* ========================================
@@ -878,7 +1005,20 @@ header::before {
 
     .tab-btn {
         flex: 1;
-        min-width: 120px;
+        min-width: 60px;
+        padding: 10px 8px;
+    }
+
+    .tab-label {
+        font-size: 1.2rem;
+    }
+
+    .tab-flag {
+        font-size: 1rem;
+    }
+
+    .tab-count {
+        font-size: 0.5rem;
     }
 
     .tab-info {
@@ -888,13 +1028,21 @@ header::before {
         border-top: 2px solid rgba(240, 240, 232, 0.2);
     }
 
+    .power-search-container {
+        border-width: 3px;
+    }
+
     .search-bar {
         flex-direction: column;
     }
 
-    .search-bar input {
+    .search-input-wrapper {
         border-right: none;
         border-bottom: var(--border-thick) solid var(--raw-white);
+    }
+
+    .search-shortcut {
+        display: none;
     }
 
     .filter-btns {
@@ -905,6 +1053,35 @@ header::before {
         flex: 1;
         text-align: center;
         min-width: 80px;
+        padding: 12px 15px;
+        font-size: 1rem;
+    }
+
+    .sort-controls {
+        justify-content: center;
+        padding: 8px 10px;
+    }
+
+    .sort-btn {
+        padding: 5px 8px;
+        font-size: 0.6rem;
+    }
+
+    .index-display {
+        margin-left: 0;
+        margin-top: 8px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .search-help {
+        justify-content: center;
+        padding: 6px 10px;
+    }
+
+    .search-help code {
+        font-size: 0.55rem;
+        padding: 2px 6px;
     }
 
     .pagination {
