@@ -23,30 +23,34 @@
                 <button class="tab-btn active" data-exchange="nyse">
                     <span class="tab-label">NYSE</span>
                     <span class="tab-flag">🇺🇸</span>
-                    <span class="tab-count">10 STOCKS</span>
+                    <span class="tab-count" id="count-nyse">30 STOCKS</span>
                 </button>
                 <button class="tab-btn" data-exchange="tsx">
                     <span class="tab-label">TSX</span>
                     <span class="tab-flag">🇨🇦</span>
-                    <span class="tab-count">10 STOCKS</span>
-                </button>
-                <button class="tab-btn" data-exchange="hkex">
-                    <span class="tab-label">HKEX</span>
-                    <span class="tab-flag">🇭🇰</span>
-                    <span class="tab-count">10 STOCKS</span>
-                </button>
-                <button class="tab-btn" data-exchange="sgx">
-                    <span class="tab-label">SGX</span>
-                    <span class="tab-flag">🇸🇬</span>
-                    <span class="tab-count">10 STOCKS</span>
+                    <span class="tab-count" id="count-tsx">40 STOCKS</span>
                 </button>
                 <button class="tab-btn" data-exchange="nse">
                     <span class="tab-label">NSE</span>
                     <span class="tab-flag">🇮🇳</span>
-                    <span class="tab-count">10 STOCKS</span>
+                    <span class="tab-count" id="count-nse">5 STOCKS</span>
+                </button>
+                <button class="tab-btn" data-exchange="crypto">
+                    <span class="tab-label">CRYPTO</span>
+                    <span class="tab-flag">₿</span>
+                    <span class="tab-count" id="count-crypto">10 COINS</span>
+                </button>
+                <button class="tab-btn" data-exchange="etf">
+                    <span class="tab-label">ETF</span>
+                    <span class="tab-flag">📊</span>
+                    <span class="tab-count" id="count-etf">10 FUNDS</span>
                 </button>
                 <div class="tab-info">
-                    <span id="current-exchange">NYSE</span> // <span id="stock-count">10</span> SECURITIES LOADED
+                    <span id="current-exchange">NYSE</span> // <span id="stock-count">30</span> SECURITIES LOADED
+                </div>
+                <div class="api-status" id="api-status">
+                    <span class="status-indicator"></span>
+                    <span class="status-text">CONNECTING...</span>
                 </div>
             </div>
 
@@ -124,10 +128,10 @@
 
             <!-- Terminal Footer -->
             <div class="terminal-footer">
-                <div class="terminal-line">System initialized: <span>FINANCEBRO v4.0 // GLOBAL EDITION</span></div>
-                <div class="terminal-line">Data sources: <span>NYSE, TSX, HKEX, SGX, NSE // 5 EXCHANGES</span></div>
+                <div class="terminal-line">System initialized: <span>FINANCEBRO v5.0 // YFINANCE EDITION</span></div>
+                <div class="terminal-line">Data sources: <span>YFINANCE API // REAL-TIME DATA // FREE TIER</span></div>
                 <div class="terminal-line">Analysis complete: <span id="stats-line">50 stocks processed // 250 metrics evaluated</span></div>
-                <div class="terminal-line">Keyboard: <span>CTRL+K search | CTRL+1-5 exchange | ESC clear</span></div>
+                <div class="terminal-line">Keyboard: <span>CTRL+K search | CTRL+1-5 exchange | CTRL+R refresh | ESC clear</span></div>
                 <div class="terminal-line">Status: <span class="status-ready">READY FOR ANALYSIS</span></div>
             </div>
         </div>
@@ -135,84 +139,109 @@
 
     <script>
         // ============================================
-        // STOCK DATA - 5 GLOBAL EXCHANGES (10 STOCKS EACH)
+        // API CONFIGURATION
         // ============================================
-        const stockData = {
-            // NYSE - USA (10 stocks)
-            nyse: [
-                { ticker: 'JPM', name: 'JPMorgan Chase', price: 195.42, change: 1.12, pe: 11.80, forwardPe: 10.50, peg: 0.92, growth: 12.8, industry: 'Financials', industryPe: 12.5 },
-                { ticker: 'V', name: 'Visa Inc.', price: 279.85, change: 0.92, pe: 30.45, forwardPe: 25.80, peg: 1.89, growth: 16.1, industry: 'Financials', industryPe: 12.5 },
-                { ticker: 'JNJ', name: 'Johnson & Johnson', price: 156.78, change: 0.23, pe: 15.20, forwardPe: 14.50, peg: 2.45, growth: 6.2, industry: 'Healthcare', industryPe: 22.0 },
-                { ticker: 'XOM', name: 'Exxon Mobil', price: 104.55, change: 0.67, pe: 12.30, forwardPe: 11.80, peg: 0.95, growth: 12.9, industry: 'Energy', industryPe: 10.5 },
-                { ticker: 'PG', name: 'Procter & Gamble', price: 159.45, change: 0.34, pe: 26.80, forwardPe: 24.10, peg: 3.85, growth: 7.0, industry: 'Consumer Defensive', industryPe: 24.0 },
-                { ticker: 'HD', name: 'Home Depot', price: 348.90, change: 1.23, pe: 23.40, forwardPe: 21.50, peg: 2.08, growth: 11.3, industry: 'Consumer Cyclical', industryPe: 22.0 },
-                { ticker: 'CVX', name: 'Chevron Corp.', price: 149.80, change: 0.56, pe: 11.90, forwardPe: 11.20, peg: 0.88, growth: 13.5, industry: 'Energy', industryPe: 10.5 },
-                { ticker: 'MRK', name: 'Merck & Co.', price: 108.25, change: -0.45, pe: 18.70, forwardPe: 13.20, peg: 1.35, growth: 13.9, industry: 'Healthcare', industryPe: 22.0 },
-                { ticker: 'KO', name: 'Coca-Cola Co.', price: 59.85, change: 0.12, pe: 23.80, forwardPe: 21.50, peg: 3.40, growth: 7.0, industry: 'Consumer Defensive', industryPe: 24.0 },
-                { ticker: 'DIS', name: 'Walt Disney Co.', price: 112.45, change: -0.89, pe: 72.50, forwardPe: 24.80, peg: 1.45, growth: 50.0, industry: 'Consumer Cyclical', industryPe: 22.0 }
-            ],
-            // TSX - Canada (10 stocks)
-            tsx: [
-                { ticker: 'RY', name: 'Royal Bank of Canada', price: 135.42, change: 0.89, pe: 12.80, forwardPe: 11.50, peg: 1.28, growth: 10.0, industry: 'Financials', industryPe: 11.5 },
-                { ticker: 'TD', name: 'Toronto-Dominion Bank', price: 82.15, change: 0.45, pe: 11.20, forwardPe: 10.30, peg: 1.40, growth: 8.0, industry: 'Financials', industryPe: 11.5 },
-                { ticker: 'ENB', name: 'Enbridge Inc.', price: 48.90, change: 0.23, pe: 18.50, forwardPe: 16.80, peg: 2.31, growth: 8.0, industry: 'Energy', industryPe: 12.0 },
-                { ticker: 'CNR', name: 'Canadian National Railway', price: 165.80, change: 1.23, pe: 22.40, forwardPe: 19.80, peg: 2.24, growth: 10.0, industry: 'Industrials', industryPe: 18.5 },
-                { ticker: 'BNS', name: 'Bank of Nova Scotia', price: 65.45, change: 0.34, pe: 10.80, forwardPe: 9.90, peg: 0.85, growth: 12.7, industry: 'Financials', industryPe: 11.5 },
-                { ticker: 'SU', name: 'Suncor Energy', price: 45.80, change: 0.67, pe: 8.90, forwardPe: 8.20, peg: 0.74, growth: 12.0, industry: 'Energy', industryPe: 12.0 },
-                { ticker: 'BMO', name: 'Bank of Montreal', price: 125.30, change: 0.56, pe: 12.40, forwardPe: 10.80, peg: 1.24, growth: 10.0, industry: 'Financials', industryPe: 11.5 },
-                { ticker: 'ABX', name: 'Barrick Gold', price: 22.15, change: 0.34, pe: 18.90, forwardPe: 14.50, peg: 0.95, growth: 19.9, industry: 'Materials', industryPe: 15.0 },
-                { ticker: 'CSU', name: 'Constellation Software', price: 3245.00, change: 45.00, pe: 95.80, forwardPe: 72.30, peg: 3.19, growth: 30.0, industry: 'Technology', industryPe: 32.0 },
-                { ticker: 'SHOP', name: 'Shopify Inc.', price: 89.50, change: 2.34, pe: 85.20, forwardPe: 52.30, peg: 0.95, growth: 89.7, industry: 'Technology', industryPe: 32.0 }
-            ],
-            // HKEX - Hong Kong (10 stocks)
-            hkex: [
-                { ticker: '0700', name: 'Tencent Holdings', price: 368.40, change: 2.15, pe: 22.50, forwardPe: 18.90, peg: 0.85, growth: 26.5, industry: 'Technology', industryPe: 25.0 },
-                { ticker: '9988', name: 'Alibaba Group', price: 88.25, change: 1.45, pe: 18.90, forwardPe: 12.50, peg: 0.72, growth: 26.3, industry: 'Technology', industryPe: 25.0 },
-                { ticker: '1299', name: 'AIA Group', price: 68.90, change: 0.78, pe: 15.80, forwardPe: 13.20, peg: 1.32, growth: 12.0, industry: 'Financials', industryPe: 14.0 },
-                { ticker: '0005', name: 'HSBC Holdings', price: 62.45, change: 0.34, pe: 7.80, forwardPe: 7.20, peg: 0.65, growth: 12.0, industry: 'Financials', industryPe: 14.0 },
-                { ticker: '0941', name: 'China Mobile', price: 72.80, change: 0.23, pe: 9.50, forwardPe: 8.80, peg: 1.58, growth: 6.0, industry: 'Telecom', industryPe: 12.0 },
-                { ticker: '2318', name: 'Ping An Insurance', price: 45.60, change: -0.45, pe: 8.20, forwardPe: 7.50, peg: 0.68, growth: 12.1, industry: 'Financials', industryPe: 14.0 },
-                { ticker: '3690', name: 'Meituan', price: 128.50, change: 3.21, pe: 45.80, forwardPe: 28.90, peg: 1.15, growth: 39.8, industry: 'Technology', industryPe: 25.0 },
-                { ticker: '1810', name: 'Xiaomi Corp.', price: 18.92, change: 1.56, pe: 28.40, forwardPe: 22.10, peg: 0.95, growth: 29.9, industry: 'Technology', industryPe: 25.0 },
-                { ticker: '0939', name: 'China Construction Bank', price: 5.42, change: 0.12, pe: 4.50, forwardPe: 4.20, peg: 0.75, growth: 6.0, industry: 'Financials', industryPe: 14.0 },
-                { ticker: '0883', name: 'CNOOC Ltd.', price: 15.80, change: 0.45, pe: 6.80, forwardPe: 6.20, peg: 0.57, growth: 11.9, industry: 'Energy', industryPe: 10.0 }
-            ],
-            // SGX - Singapore (10 stocks)
-            sgx: [
-                { ticker: 'D05', name: 'DBS Group Holdings', price: 35.80, change: 0.67, pe: 10.20, forwardPe: 9.50, peg: 0.85, growth: 12.0, industry: 'Financials', industryPe: 11.0 },
-                { ticker: 'O39', name: 'OCBC Bank', price: 13.45, change: 0.23, pe: 9.80, forwardPe: 9.20, peg: 0.98, growth: 10.0, industry: 'Financials', industryPe: 11.0 },
-                { ticker: 'U11', name: 'United Overseas Bank', price: 30.20, change: 0.45, pe: 10.50, forwardPe: 9.80, peg: 1.05, growth: 10.0, industry: 'Financials', industryPe: 11.0 },
-                { ticker: 'Z74', name: 'Singtel', price: 2.85, change: 0.02, pe: 22.40, forwardPe: 18.50, peg: 2.80, growth: 8.0, industry: 'Telecom', industryPe: 15.0 },
-                { ticker: 'C38U', name: 'CapitaLand Integrated', price: 2.12, change: 0.03, pe: 18.90, forwardPe: 16.80, peg: 1.89, growth: 10.0, industry: 'Real Estate', industryPe: 18.0 },
-                { ticker: 'BN4', name: 'Keppel Corp.', price: 7.25, change: 0.12, pe: 12.80, forwardPe: 11.20, peg: 1.07, growth: 12.0, industry: 'Industrials', industryPe: 15.0 },
-                { ticker: 'S68', name: 'Singapore Exchange', price: 10.85, change: 0.18, pe: 24.50, forwardPe: 22.30, peg: 2.45, growth: 10.0, industry: 'Financials', industryPe: 11.0 },
-                { ticker: 'C52', name: 'ComfortDelGro', price: 1.42, change: 0.01, pe: 18.20, forwardPe: 15.80, peg: 1.82, growth: 10.0, industry: 'Industrials', industryPe: 15.0 },
-                { ticker: 'V03', name: 'Venture Corp.', price: 14.20, change: 0.25, pe: 15.80, forwardPe: 14.20, peg: 1.32, growth: 12.0, industry: 'Technology', industryPe: 20.0 },
-                { ticker: 'S58', name: 'SATS Ltd.', price: 2.95, change: 0.08, pe: 35.80, forwardPe: 22.40, peg: 0.89, growth: 40.2, industry: 'Industrials', industryPe: 15.0 }
-            ],
-            // NSE - India (10 stocks)
-            nse: [
-                { ticker: 'RELIANCE', name: 'Reliance Industries', price: 2485.60, change: 1.23, pe: 28.50, forwardPe: 24.20, peg: 1.42, growth: 20.1, industry: 'Energy', industryPe: 15.0 },
-                { ticker: 'TCS', name: 'Tata Consultancy', price: 3842.50, change: 0.89, pe: 32.40, forwardPe: 28.50, peg: 2.16, growth: 15.0, industry: 'Technology', industryPe: 28.0 },
-                { ticker: 'HDFCBANK', name: 'HDFC Bank', price: 1625.80, change: 0.45, pe: 19.80, forwardPe: 17.20, peg: 1.32, growth: 15.0, industry: 'Financials', industryPe: 18.0 },
-                { ticker: 'INFY', name: 'Infosys Ltd.', price: 1542.30, change: 0.67, pe: 28.90, forwardPe: 24.50, peg: 1.93, growth: 15.0, industry: 'Technology', industryPe: 28.0 },
-                { ticker: 'ICICIBANK', name: 'ICICI Bank', price: 1085.40, change: 1.12, pe: 18.50, forwardPe: 16.20, peg: 0.92, growth: 20.1, industry: 'Financials', industryPe: 18.0 },
-                { ticker: 'HINDUNILVR', name: 'Hindustan Unilever', price: 2542.80, change: 0.34, pe: 58.90, forwardPe: 52.30, peg: 4.91, growth: 12.0, industry: 'Consumer Defensive', industryPe: 45.0 },
-                { ticker: 'SBIN', name: 'State Bank of India', price: 628.50, change: 0.78, pe: 11.20, forwardPe: 9.80, peg: 0.70, growth: 16.0, industry: 'Financials', industryPe: 18.0 },
-                { ticker: 'BHARTIARTL', name: 'Bharti Airtel', price: 1245.60, change: 1.45, pe: 75.80, forwardPe: 42.30, peg: 0.95, growth: 79.8, industry: 'Telecom', industryPe: 35.0 },
-                { ticker: 'ITC', name: 'ITC Ltd.', price: 452.30, change: 0.23, pe: 28.40, forwardPe: 25.80, peg: 2.37, growth: 12.0, industry: 'Consumer Defensive', industryPe: 45.0 },
-                { ticker: 'KOTAKBANK', name: 'Kotak Mahindra Bank', price: 1785.40, change: 0.56, pe: 22.80, forwardPe: 19.50, peg: 1.27, growth: 18.0, industry: 'Financials', industryPe: 18.0 }
-            ]
-        };
+        const API_BASE = 'http://localhost:5001';
+        let stockData = { nyse: [], tsx: [], nse: [], crypto: [], etf: [] };
+        let isLoading = false;
+        let apiConnected = false;
 
         // Exchange metadata
         const exchangeInfo = {
             nyse: { currency: '$', name: 'NYSE', country: 'USA', flag: '🇺🇸' },
             tsx: { currency: 'C$', name: 'TSX', country: 'Canada', flag: '🇨🇦' },
-            hkex: { currency: 'HK$', name: 'HKEX', country: 'Hong Kong', flag: '🇭🇰' },
-            sgx: { currency: 'S$', name: 'SGX', country: 'Singapore', flag: '🇸🇬' },
-            nse: { currency: '₹', name: 'NSE', country: 'India', flag: '🇮🇳' }
+            nse: { currency: '₹', name: 'NSE', country: 'India', flag: '🇮🇳' },
+            crypto: { currency: '$', name: 'CRYPTO', country: 'Global', flag: '₿' },
+            etf: { currency: '$', name: 'ETF', country: 'USA', flag: '📊' }
         };
+
+        // ============================================
+        // API FUNCTIONS
+        // ============================================
+        async function fetchStockData(exchange) {
+            try {
+                const response = await fetch(`${API_BASE}/api/stocks/${exchange}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                return data.stocks || [];
+            } catch (error) {
+                console.error(`Error fetching ${exchange}:`, error);
+                return [];
+            }
+        }
+
+        async function loadAllData() {
+            isLoading = true;
+            updateApiStatus('loading', 'FETCHING DATA...');
+            showLoading();
+
+            try {
+                // Fetch all exchanges in parallel
+                const [nyse, tsx, nse, crypto, etf] = await Promise.all([
+                    fetchStockData('nyse'),
+                    fetchStockData('tsx'),
+                    fetchStockData('nse'),
+                    fetchStockData('crypto'),
+                    fetchStockData('etf')
+                ]);
+
+                stockData = { nyse, tsx, nse, crypto, etf };
+                apiConnected = true;
+
+                // Update counts
+                document.getElementById('count-nyse').textContent = `${nyse.length} STOCKS`;
+                document.getElementById('count-tsx').textContent = `${tsx.length} STOCKS`;
+                document.getElementById('count-nse').textContent = `${nse.length} STOCKS`;
+                document.getElementById('count-crypto').textContent = `${crypto.length} COINS`;
+                document.getElementById('count-etf').textContent = `${etf.length} FUNDS`;
+
+                updateApiStatus('connected', 'LIVE DATA');
+                renderStocks();
+
+            } catch (error) {
+                console.error('Failed to load data:', error);
+                apiConnected = false;
+                updateApiStatus('error', 'API OFFLINE');
+                showError();
+            }
+
+            isLoading = false;
+        }
+
+        function updateApiStatus(status, text) {
+            const statusEl = document.getElementById('api-status');
+            statusEl.className = `api-status ${status}`;
+            statusEl.querySelector('.status-text').textContent = text;
+        }
+
+        function showLoading() {
+            document.getElementById('stock-grid').innerHTML = `
+                <div class="loading-state">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">FETCHING LIVE DATA FROM YFINANCE...</div>
+                </div>
+            `;
+        }
+
+        function showError() {
+            document.getElementById('stock-grid').innerHTML = `
+                <div class="error-state">
+                    <div class="error-icon">⚠</div>
+                    <div class="error-text">API OFFLINE</div>
+                    <div class="error-hint">Start the API server: python api.py</div>
+                    <button class="retry-btn" onclick="loadAllData()">RETRY CONNECTION</button>
+                </div>
+            `;
+        }
+
+        // Auto-refresh data every 60 seconds
+        function startAutoRefresh() {
+            setInterval(() => {
+                if (apiConnected && !isLoading) {
+                    loadAllData();
+                }
+            }, 60000);
+        }
 
         // ============================================
         // STATE
@@ -564,7 +593,7 @@
             // Ctrl+1-5 - Switch exchanges
             if ((e.ctrlKey || e.metaKey) && e.key >= '1' && e.key <= '5') {
                 e.preventDefault();
-                const exchanges = ['nyse', 'tsx', 'hkex', 'sgx', 'nse'];
+                const exchanges = ['nyse', 'tsx', 'nse', 'crypto', 'etf'];
                 const idx = parseInt(e.key) - 1;
                 if (idx < exchanges.length) {
                     currentExchange = exchanges[idx];
@@ -573,6 +602,11 @@
                     currentPage = 1;
                     renderStocks();
                 }
+            }
+            // Ctrl+R - Refresh data
+            if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+                e.preventDefault();
+                loadAllData();
             }
             // Escape - Clear search
             if (e.key === 'Escape') {
@@ -607,7 +641,8 @@
         // ============================================
         // INITIALIZE
         // ============================================
-        renderStocks();
+        loadAllData();
+        startAutoRefresh();
     </script>
 </body>
 </html>

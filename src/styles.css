@@ -1114,3 +1114,139 @@ header::before {
         font-size: 0.85rem;
     }
 }
+
+/* ========================================
+   API STATUS INDICATOR
+   ======================================== */
+.api-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+}
+
+.api-status .status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--warning-yellow);
+    animation: pulse 1s infinite;
+}
+
+.api-status.connected .status-indicator {
+    background: var(--signal-green);
+}
+
+.api-status.error .status-indicator {
+    background: var(--brutal-red);
+    animation: none;
+}
+
+.api-status.loading .status-indicator {
+    background: var(--warning-yellow);
+}
+
+.api-status .status-text {
+    color: var(--warning-yellow);
+}
+
+.api-status.connected .status-text {
+    color: var(--signal-green);
+}
+
+.api-status.error .status-text {
+    color: var(--brutal-red);
+}
+
+/* ========================================
+   LOADING STATE
+   ======================================== */
+.loading-state {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 40px;
+    border: var(--border-thick) solid var(--warning-yellow);
+    background: var(--grid-gray);
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid rgba(255, 204, 0, 0.2);
+    border-top-color: var(--warning-yellow);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 25px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    color: var(--warning-yellow);
+    letter-spacing: 0.15em;
+    animation: blink 1s infinite;
+}
+
+/* ========================================
+   ERROR STATE
+   ======================================== */
+.error-state {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 40px;
+    border: var(--border-thick) solid var(--brutal-red);
+    background: var(--grid-gray);
+}
+
+.error-icon {
+    font-size: 4rem;
+    color: var(--brutal-red);
+    margin-bottom: 20px;
+}
+
+.error-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    color: var(--brutal-red);
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+}
+
+.error-hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: rgba(240, 240, 232, 0.6);
+    margin-bottom: 30px;
+}
+
+.retry-btn {
+    background: var(--brutal-red);
+    border: var(--border-thick) solid var(--raw-white);
+    padding: 15px 40px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    color: var(--bg-black);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.1em;
+}
+
+.retry-btn:hover {
+    background: var(--raw-white);
+    color: var(--bg-black);
+    transform: translate(-3px, -3px);
+    box-shadow: 6px 6px 0 var(--brutal-red);
+}
