@@ -466,6 +466,14 @@
                                 <span class="metric-value ${valuation.class}">${stock.peg.toFixed(2)}<span class="vs-industry">${valuation.label}</span></span>
                             </div>
                             <div class="metric-row">
+                                <span class="metric-label">52-Week High</span>
+                                <span class="metric-value">${info.currency}${stock.week52High.toFixed(2)}<span class="vs-industry ${stock.pctFromHigh >= 0 ? 'highlight-good' : 'highlight-bad'}">${stock.pctFromHigh.toFixed(1)}%</span></span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">52-Week Low</span>
+                                <span class="metric-value">${info.currency}${stock.week52Low.toFixed(2)}<span class="vs-industry ${stock.pctFromLow >= 20 ? 'highlight-good' : stock.pctFromLow >= 0 ? 'highlight-warn' : 'highlight-bad'}">${stock.pctFromLow > 0 ? '+' : ''}${stock.pctFromLow.toFixed(1)}%</span></span>
+                            </div>
+                            <div class="metric-row">
                                 <span class="metric-label">5Y EPS Growth</span>
                                 <span class="metric-value">${stock.growth.toFixed(1)}%</span>
                             </div>

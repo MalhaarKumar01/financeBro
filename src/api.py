@@ -205,6 +205,18 @@ def fetch_stock_data(symbols_info):
                 if peg == 0 and pe > 0 and growth > 0:
                     peg = pe / growth
 
+                # Get 52-week high and low
+                week_52_high = info.get('fiftyTwoWeekHigh') or 0
+                week_52_low = info.get('fiftyTwoWeekLow') or 0
+
+                # Calculate distance from 52-week high/low (as percentage)
+                pct_from_high = 0
+                pct_from_low = 0
+                if price and week_52_high:
+                    pct_from_high = ((price - week_52_high) / week_52_high * 100)
+                if price and week_52_low:
+                    pct_from_low = ((price - week_52_low) / week_52_low * 100)
+
                 industry = symbol_map[symbol]['industry']
                 industry_pe = INDUSTRY_PE.get(industry, 20.0)
 
@@ -221,6 +233,10 @@ def fetch_stock_data(symbols_info):
                     'industryPe': industry_pe if industry_pe else 0,
                     'volume': info.get('volume', 0) or info.get('regularMarketVolume', 0),
                     'marketCap': info.get('marketCap', 0),
+                    'week52High': round(week_52_high, 2) if week_52_high else 0,
+                    'week52Low': round(week_52_low, 2) if week_52_low else 0,
+                    'pctFromHigh': round(pct_from_high, 2),
+                    'pctFromLow': round(pct_from_low, 2),
                 }
 
                 results.append(stock_data)
@@ -242,6 +258,10 @@ def fetch_stock_data(symbols_info):
                     'industryPe': INDUSTRY_PE.get(symbol_map[symbol]['industry'], 0),
                     'volume': 0,
                     'marketCap': 0,
+                    'week52High': 0,
+                    'week52Low': 0,
+                    'pctFromHigh': 0,
+                    'pctFromLow': 0,
                 })
 
     except Exception as e:
