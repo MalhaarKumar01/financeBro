@@ -13,7 +13,10 @@
     <div class="container">
         <header>
             <div class="logo">FINANCE<span>BRO</span></div>
-            <div class="subtitle">Valuation Terminal // P/E & PEG Analysis</div>
+            <div class="subtitle">Valuation Terminal // P/E · PEG · RSI · Sentiment · Analyst</div>
+            <div class="header-actions">
+                <button class="export-btn" id="export-btn" title="CTRL+E">⬇ EXPORT CSV</button>
+            </div>
             <div class="timestamp" id="timestamp">LOADING...</div>
         </header>
 
@@ -45,8 +48,13 @@
                     <span class="tab-flag">📊</span>
                     <span class="tab-count" id="count-etf">10 FUNDS</span>
                 </button>
+                <button class="tab-btn watchlist-tab" data-exchange="watchlist">
+                    <span class="tab-label">★ WL</span>
+                    <span class="tab-flag">⬛</span>
+                    <span class="tab-count" id="count-watchlist">0 SAVED</span>
+                </button>
                 <div class="tab-info">
-                    <span id="current-exchange">NYSE</span> // <span id="stock-count">30</span> SECURITIES LOADED
+                    <span id="current-exchange">NYSE</span> // <span id="stock-count">0</span> SECURITIES
                 </div>
                 <div class="api-status" id="api-status">
                     <span class="status-indicator"></span>
@@ -54,12 +62,21 @@
                 </div>
             </div>
 
+            <!-- View Mode Toggle -->
+            <div class="view-toggle-bar">
+                <span class="view-label">VIEW:</span>
+                <button class="view-btn active" data-view="grid">▦ GRID</button>
+                <button class="view-btn" data-view="heatmap">▣ HEATMAP</button>
+                <span class="view-label" style="margin-left:20px">EARNINGS:</span>
+                <button class="view-btn" id="earnings-toggle">▼ RADAR</button>
+            </div>
+
             <!-- Power Search Bar -->
             <div class="power-search-container">
                 <div class="search-bar">
                     <div class="search-input-wrapper">
                         <span class="search-prefix">></span>
-                        <input type="text" id="stock-search" placeholder="SEARCH: ticker:AAPL | pe<20 | peg>1 | industry:Tech | sort:pe">
+                        <input type="text" id="stock-search" placeholder="ticker:AAPL | pe<20 | peg>1 | growth>15 | rsi<30 | industry:Tech | beta<1">
                         <span class="search-shortcut">CTRL+K</span>
                     </div>
                     <div class="filter-btns">
@@ -78,17 +95,27 @@
                     <button class="sort-btn" data-sort="peg-desc">PEG ↓</button>
                     <button class="sort-btn" data-sort="price-asc">PRICE ↑</button>
                     <button class="sort-btn" data-sort="price-desc">PRICE ↓</button>
-                    <button class="sort-btn" data-sort="change-desc">CHANGE ↓</button>
-                    <span class="index-display" id="index-display">IDX: 001-010</span>
+                    <button class="sort-btn" data-sort="change-desc">CHG ↓</button>
+                    <button class="sort-btn" data-sort="change-asc">CHG ↑</button>
+                    <button class="sort-btn" data-sort="rsi-asc">RSI ↑</button>
+                    <button class="sort-btn" data-sort="rsi-desc">RSI ↓</button>
+                    <button class="sort-btn" data-sort="upside-desc">UPSIDE ↓</button>
+                    <span class="index-display" id="index-display">IDX: 001-012</span>
                 </div>
                 <div class="search-help">
                     <span class="help-tag">SYNTAX:</span>
-                    <code>ticker:XYZ</code>
+                    <code>ticker:AAPL</code>
                     <code>pe&lt;20</code>
-                    <code>pe&gt;10</code>
                     <code>peg&lt;1</code>
                     <code>growth&gt;15</code>
+                    <code>rsi&lt;30</code>
+                    <code>beta&lt;1</code>
                     <code>industry:Tech</code>
+                    <span class="help-tag" style="margin-left:12px">SHORTCUTS:</span>
+                    <code>CTRL+K search</code>
+                    <code>CTRL+E export</code>
+                    <code>CTRL+W watchlist</code>
+                    <code>CTRL+1-5 exchange</code>
                 </div>
             </div>
 
@@ -113,545 +140,905 @@
             </div>
 
             <div class="section-header">
-                <h2>STOCK VALUATIONS</h2>
+                <h2 id="section-title">STOCK VALUATIONS</h2>
             </div>
 
             <!-- Stock Grid Container -->
-            <div class="stock-grid" id="stock-grid">
-                <!-- Stocks will be rendered here by JavaScript -->
+            <div class="stock-grid" id="stock-grid"></div>
+
+            <!-- Heatmap Container (hidden by default) -->
+            <div class="heatmap-container" id="heatmap-container" style="display:none"></div>
+
+            <!-- Earnings Radar Panel -->
+            <div class="earnings-radar" id="earnings-radar" style="display:none">
+                <div class="earnings-header">
+                    <span>▐ EARNINGS RADAR</span>
+                    <span id="earnings-exchange-label"></span>
+                    <button class="earnings-close" id="earnings-close">✕ CLOSE</button>
+                </div>
+                <div class="earnings-body" id="earnings-body">
+                    <div style="padding:20px;color:rgba(240,240,232,0.5)">LOADING EARNINGS DATA...</div>
+                </div>
             </div>
 
             <!-- Pagination -->
-            <div class="pagination" id="pagination">
-                <!-- Pagination buttons rendered by JS -->
-            </div>
+            <div class="pagination" id="pagination"></div>
 
             <!-- Terminal Footer -->
             <div class="terminal-footer">
-                <div class="terminal-line">System initialized: <span>FINANCEBRO v5.0 // YFINANCE EDITION</span></div>
-                <div class="terminal-line">Data sources: <span>YFINANCE API // REAL-TIME DATA // FREE TIER</span></div>
-                <div class="terminal-line">Analysis complete: <span id="stats-line">50 stocks processed // 250 metrics evaluated</span></div>
-                <div class="terminal-line">Keyboard: <span>CTRL+K search | CTRL+1-5 exchange | CTRL+R refresh | ESC clear</span></div>
+                <div class="terminal-line">System: <span>FINANCEBRO v2.0 // YFINANCE + REDDIT SENTIMENT</span></div>
+                <div class="terminal-line">Data: <span>YFINANCE API // RSI // MA50/200 // ANALYST TARGETS // REAL-TIME</span></div>
+                <div class="terminal-line">Stats: <span id="stats-line">INITIALIZING...</span></div>
+                <div class="terminal-line">Keys: <span>CTRL+K search | CTRL+E export | CTRL+W watchlist | CTRL+1-5 exchange | ESC clear</span></div>
                 <div class="terminal-line">Status: <span class="status-ready">READY FOR ANALYSIS</span></div>
             </div>
         </div>
     </div>
 
     <script>
-        // ============================================
-        // API CONFIGURATION
-        // ============================================
-        const API_BASE = 'http://localhost:5001';
-        let stockData = { nyse: [], tsx: [], nse: [], crypto: [], etf: [] };
-        let isLoading = false;
-        let apiConnected = false;
+    // ============================================================
+    // CONFIG
+    // ============================================================
+    const API_BASE = 'http://localhost:5001';
 
-        // Exchange metadata
-        const exchangeInfo = {
-            nyse: { currency: '$', name: 'NYSE', country: 'USA', flag: '🇺🇸' },
-            tsx: { currency: 'C$', name: 'TSX', country: 'Canada', flag: '🇨🇦' },
-            nse: { currency: '₹', name: 'NSE', country: 'India', flag: '🇮🇳' },
-            crypto: { currency: '$', name: 'CRYPTO', country: 'Global', flag: '₿' },
-            etf: { currency: '$', name: 'ETF', country: 'USA', flag: '📊' }
+    let stockData    = { nyse: [], tsx: [], nse: [], crypto: [], etf: [] };
+    let sentimentData = {};   // ticker -> sentiment result
+    let earningsData  = {};   // exchange -> earnings array
+    let watchlist     = new Set(JSON.parse(localStorage.getItem('fb_watchlist') || '[]'));
+    let isLoading     = false;
+    let apiConnected  = false;
+    let earningsOpen  = false;
+
+    const exchangeInfo = {
+        nyse:      { currency: '$',  name: 'NYSE',      flag: '🇺🇸' },
+        tsx:       { currency: 'C$', name: 'TSX',       flag: '🇨🇦' },
+        nse:       { currency: '₹',  name: 'NSE',       flag: '🇮🇳' },
+        crypto:    { currency: '$',  name: 'CRYPTO',    flag: '₿'   },
+        etf:       { currency: '$',  name: 'ETF',       flag: '📊'  },
+        watchlist: { currency: '$',  name: 'WATCHLIST', flag: '★'   },
+    };
+
+    // ============================================================
+    // STATE
+    // ============================================================
+    let currentExchange = 'nyse';
+    let currentFilter   = 'all';
+    let currentIndustry = 'all';
+    let currentView     = 'grid';  // 'grid' | 'heatmap'
+    let searchQuery     = '';
+    let currentPage     = 1;
+    let currentSort     = 'ticker';
+    const STOCKS_PER_PAGE = 12;
+
+    // ============================================================
+    // FORMAT HELPERS
+    // ============================================================
+    function fmt(val, decimals = 2) {
+        if (val === null || val === undefined) return '—';
+        return parseFloat(val).toFixed(decimals);
+    }
+
+    function fmtCurrency(val, currency = '$') {
+        if (val === null || val === undefined || val === 0) return '—';
+        return `${currency}${parseFloat(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    function fmtCap(val) {
+        if (!val) return '—';
+        if (val >= 1e12) return `${(val / 1e12).toFixed(1)}T`;
+        if (val >= 1e9)  return `${(val / 1e9).toFixed(1)}B`;
+        if (val >= 1e6)  return `${(val / 1e6).toFixed(1)}M`;
+        return val.toLocaleString();
+    }
+
+    function fmtVol(val) {
+        if (!val) return '—';
+        if (val >= 1e9) return `${(val / 1e9).toFixed(1)}B`;
+        if (val >= 1e6) return `${(val / 1e6).toFixed(1)}M`;
+        if (val >= 1e3) return `${(val / 1e3).toFixed(0)}K`;
+        return val.toLocaleString();
+    }
+
+    function fmtPct(val, decimals = 1, showSign = false) {
+        if (val === null || val === undefined) return '—';
+        const v = parseFloat(val).toFixed(decimals);
+        return showSign && val > 0 ? `+${v}%` : `${v}%`;
+    }
+
+    // ============================================================
+    // CLASSIFICATION HELPERS
+    // ============================================================
+    function getValuation(peg) {
+        if (peg === null || peg === undefined) return { label: '—', class: '', filter: 'all' };
+        if (peg < 1)  return { label: 'UNDERVALUED', class: 'highlight-good', filter: 'undervalued' };
+        if (peg <= 2) return { label: 'FAIR VALUE',  class: 'highlight-warn', filter: 'fair' };
+        return              { label: 'OVERVALUED',   class: 'highlight-bad',  filter: 'overvalued' };
+    }
+
+    function getPeClass(pe, industryPe) {
+        if (!pe || !industryPe) return '';
+        const diff = (pe - industryPe) / industryPe * 100;
+        if (diff < -5)  return 'highlight-good';
+        if (diff <= 10) return 'highlight-warn';
+        return 'highlight-bad';
+    }
+
+    function getPeLabel(pe, industryPe) {
+        if (!pe || !industryPe) return '';
+        const diff = ((pe - industryPe) / industryPe * 100).toFixed(0);
+        return diff > 0 ? `+${diff}% vs IND` : `${diff}% vs IND`;
+    }
+
+    function rsiClass(rsi) {
+        if (rsi === null || rsi === undefined) return '';
+        if (rsi < 30) return 'highlight-good';
+        if (rsi > 70) return 'highlight-bad';
+        return 'highlight-warn';
+    }
+
+    function rsiLabel(rsi) {
+        if (rsi === null || rsi === undefined) return '';
+        if (rsi < 30) return 'OVERSOLD';
+        if (rsi > 70) return 'OVERBOUGHT';
+        return 'NEUTRAL';
+    }
+
+    function betaClass(beta) {
+        if (beta === null || beta === undefined) return '';
+        if (beta > 1.5) return 'highlight-bad';
+        if (beta < 0.8) return 'highlight-good';
+        return 'highlight-warn';
+    }
+
+    function betaLabel(beta) {
+        if (beta === null || beta === undefined) return '';
+        if (beta > 1.5) return 'HIGH RISK';
+        if (beta < 0.8) return 'LOW RISK';
+        return 'MODERATE';
+    }
+
+    function analystLabel(rating) {
+        if (rating === null || rating === undefined) return '—';
+        if (rating <= 1.5) return 'STRONG BUY';
+        if (rating <= 2.5) return 'BUY';
+        if (rating <= 3.5) return 'HOLD';
+        if (rating <= 4.5) return 'SELL';
+        return 'STRONG SELL';
+    }
+
+    function analystClass(rating) {
+        if (rating === null || rating === undefined) return '';
+        if (rating <= 2.5) return 'highlight-good';
+        if (rating <= 3.5) return 'highlight-warn';
+        return 'highlight-bad';
+    }
+
+    function upsideClass(upside) {
+        if (upside === null || upside === undefined) return '';
+        if (upside > 15) return 'highlight-good';
+        if (upside > 0)  return 'highlight-warn';
+        return 'highlight-bad';
+    }
+
+    function sentimentClass(label) {
+        if (label === 'BULLISH')  return 'sentiment-bullish';
+        if (label === 'BEARISH')  return 'sentiment-bearish';
+        return 'sentiment-neutral';
+    }
+
+    function sentimentIcon(label) {
+        if (label === 'BULLISH') return '↑';
+        if (label === 'BEARISH') return '↓';
+        return '~';
+    }
+
+    // ============================================================
+    // API FUNCTIONS
+    // ============================================================
+    async function fetchStockData(exchange) {
+        try {
+            const r = await fetch(`${API_BASE}/api/stocks/${exchange}`);
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            const d = await r.json();
+            return d.stocks || [];
+        } catch (e) {
+            console.error(`Error fetching ${exchange}:`, e);
+            return [];
+        }
+    }
+
+    async function loadAllData() {
+        isLoading = true;
+        updateApiStatus('loading', 'FETCHING DATA...');
+        showLoading();
+
+        try {
+            const [nyse, tsx, nse, crypto, etf] = await Promise.all([
+                fetchStockData('nyse'),
+                fetchStockData('tsx'),
+                fetchStockData('nse'),
+                fetchStockData('crypto'),
+                fetchStockData('etf'),
+            ]);
+
+            stockData = { nyse, tsx, nse, crypto, etf };
+            apiConnected = true;
+
+            document.getElementById('count-nyse').textContent    = `${nyse.length} STOCKS`;
+            document.getElementById('count-tsx').textContent     = `${tsx.length} STOCKS`;
+            document.getElementById('count-nse').textContent     = `${nse.length} STOCKS`;
+            document.getElementById('count-crypto').textContent  = `${crypto.length} COINS`;
+            document.getElementById('count-etf').textContent     = `${etf.length} FUNDS`;
+
+            updateApiStatus('connected', 'LIVE DATA');
+            renderView();
+
+            // Fetch earnings for current exchange in background
+            fetchEarnings(currentExchange === 'watchlist' ? 'nyse' : currentExchange);
+
+        } catch (e) {
+            console.error('Failed to load:', e);
+            apiConnected = false;
+            updateApiStatus('error', 'API OFFLINE');
+            showError();
+        }
+
+        isLoading = false;
+    }
+
+    async function fetchEarnings(exchange) {
+        if (earningsData[exchange]) return;
+        try {
+            const r = await fetch(`${API_BASE}/api/earnings/${exchange}`);
+            if (!r.ok) return;
+            const d = await r.json();
+            earningsData[exchange] = d.earnings || [];
+            if (earningsOpen) renderEarnings();
+        } catch (e) {
+            console.error('Earnings error:', e);
+        }
+    }
+
+    async function fetchSentiment(ticker) {
+        if (sentimentData[ticker] !== undefined) return;
+        sentimentData[ticker] = null; // mark as in-flight
+        try {
+            const r = await fetch(`${API_BASE}/api/sentiment/${ticker}`);
+            if (!r.ok) return;
+            sentimentData[ticker] = await r.json();
+            // Update badge in DOM if card is still visible
+            const badge = document.getElementById(`sent-${ticker}`);
+            if (badge) badge.outerHTML = buildSentimentBadge(ticker);
+        } catch (e) {
+            sentimentData[ticker] = { available: false };
+        }
+    }
+
+    function lazyLoadSentiment(tickers) {
+        tickers.forEach((ticker, i) => {
+            setTimeout(() => fetchSentiment(ticker), i * 150);
+        });
+    }
+
+    function buildSentimentBadge(ticker) {
+        const s = sentimentData[ticker];
+        if (!s || !s.available) return `<span id="sent-${ticker}" class="sentiment-badge sentiment-loading">⊙ LOADING SENTIMENT</span>`;
+        const cls  = sentimentClass(s.sentimentLabel);
+        const icon = sentimentIcon(s.sentimentLabel);
+        return `<span id="sent-${ticker}" class="sentiment-badge ${cls}">${icon} ${s.sentimentLabel} ${s.mentions ? `· ${s.mentions} MENTIONS` : ''}</span>`;
+    }
+
+    // ============================================================
+    // STATUS + LOADING
+    // ============================================================
+    function updateApiStatus(status, text) {
+        const el = document.getElementById('api-status');
+        el.className = `api-status ${status}`;
+        el.querySelector('.status-text').textContent = text;
+    }
+
+    function showLoading() {
+        document.getElementById('stock-grid').innerHTML = `
+            <div class="loading-state">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">FETCHING LIVE DATA FROM YFINANCE...</div>
+            </div>`;
+    }
+
+    function showError() {
+        document.getElementById('stock-grid').innerHTML = `
+            <div class="error-state">
+                <div class="error-icon">⚠</div>
+                <div class="error-text">API OFFLINE</div>
+                <div class="error-hint">Start the API: python src/api.py (with .venv active)</div>
+                <button class="retry-btn" onclick="loadAllData()">RETRY CONNECTION</button>
+            </div>`;
+    }
+
+    function startAutoRefresh() {
+        setInterval(() => {
+            if (apiConnected && !isLoading) loadAllData();
+        }, 300000); // 5 min (matches API cache)
+    }
+
+    // ============================================================
+    // SEARCH PARSER
+    // ============================================================
+    function parseSearch(query) {
+        const r = { text: '', ticker: null, peMin: null, peMax: null,
+                    pegMin: null, pegMax: null, growthMin: null, growthMax: null,
+                    rsiMin: null, rsiMax: null, betaMin: null, betaMax: null, industry: null };
+
+        query.split(/[\|\s]+/).filter(p => p.trim()).forEach(part => {
+            const t = part.trim().toLowerCase();
+            if (t.startsWith('ticker:'))         { r.ticker = t.slice(7).toUpperCase(); }
+            else if (t.match(/^pe[<>]/))         { const m = t.match(/^pe([<>])(\d+\.?\d*)/); if (m) m[1] === '<' ? r.peMax = +m[2] : r.peMin = +m[2]; }
+            else if (t.match(/^peg[<>]/))        { const m = t.match(/^peg([<>])(\d+\.?\d*)/); if (m) m[1] === '<' ? r.pegMax = +m[2] : r.pegMin = +m[2]; }
+            else if (t.match(/^growth[<>]/))     { const m = t.match(/^growth([<>])(\d+\.?\d*)/); if (m) m[1] === '<' ? r.growthMax = +m[2] : r.growthMin = +m[2]; }
+            else if (t.match(/^rsi[<>]/))        { const m = t.match(/^rsi([<>])(\d+\.?\d*)/); if (m) m[1] === '<' ? r.rsiMax = +m[2] : r.rsiMin = +m[2]; }
+            else if (t.match(/^beta[<>]/))       { const m = t.match(/^beta([<>])(\d+\.?\d*)/); if (m) m[1] === '<' ? r.betaMax = +m[2] : r.betaMin = +m[2]; }
+            else if (t.startsWith('industry:'))  { r.industry = part.slice(9); }
+            else if (!t.startsWith('sort:'))     { r.text += (r.text ? ' ' : '') + t; }
+        });
+
+        return r;
+    }
+
+    function matchesSearch(stock, c) {
+        if (c.text    && !stock.ticker.toLowerCase().includes(c.text) && !stock.name.toLowerCase().includes(c.text)) return false;
+        if (c.ticker  && !stock.ticker.toUpperCase().includes(c.ticker)) return false;
+        if (c.peMin   !== null && (stock.pe   === null || stock.pe   < c.peMin))   return false;
+        if (c.peMax   !== null && (stock.pe   === null || stock.pe   > c.peMax))   return false;
+        if (c.pegMin  !== null && (stock.peg  === null || stock.peg  < c.pegMin))  return false;
+        if (c.pegMax  !== null && (stock.peg  === null || stock.peg  > c.pegMax))  return false;
+        if (c.growthMin !== null && (stock.growth === null || stock.growth < c.growthMin)) return false;
+        if (c.growthMax !== null && (stock.growth === null || stock.growth > c.growthMax)) return false;
+        if (c.rsiMin  !== null && (stock.rsi  === null || stock.rsi  < c.rsiMin))  return false;
+        if (c.rsiMax  !== null && (stock.rsi  === null || stock.rsi  > c.rsiMax))  return false;
+        if (c.betaMin !== null && (stock.beta === null || stock.beta < c.betaMin)) return false;
+        if (c.betaMax !== null && (stock.beta === null || stock.beta > c.betaMax)) return false;
+        if (c.industry && !stock.industry.toLowerCase().includes(c.industry.toLowerCase())) return false;
+        return true;
+    }
+
+    // ============================================================
+    // SORTING
+    // ============================================================
+    function sortStocks(stocks) {
+        const s = [...stocks];
+        const nullLast = (a, b, key) => {
+            if (a[key] === null && b[key] === null) return 0;
+            if (a[key] === null) return 1;
+            if (b[key] === null) return -1;
+            return a[key] - b[key];
         };
-
-        // ============================================
-        // API FUNCTIONS
-        // ============================================
-        async function fetchStockData(exchange) {
-            try {
-                const response = await fetch(`${API_BASE}/api/stocks/${exchange}`);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const data = await response.json();
-                return data.stocks || [];
-            } catch (error) {
-                console.error(`Error fetching ${exchange}:`, error);
-                return [];
-            }
+        switch (currentSort) {
+            case 'ticker':      s.sort((a, b) => a.ticker.localeCompare(b.ticker)); break;
+            case 'pe-asc':      s.sort((a, b) => nullLast(a, b, 'pe')); break;
+            case 'pe-desc':     s.sort((a, b) => nullLast(b, a, 'pe')); break;
+            case 'peg-asc':     s.sort((a, b) => nullLast(a, b, 'peg')); break;
+            case 'peg-desc':    s.sort((a, b) => nullLast(b, a, 'peg')); break;
+            case 'price-asc':   s.sort((a, b) => a.price - b.price); break;
+            case 'price-desc':  s.sort((a, b) => b.price - a.price); break;
+            case 'change-desc': s.sort((a, b) => b.change - a.change); break;
+            case 'change-asc':  s.sort((a, b) => a.change - b.change); break;
+            case 'rsi-asc':     s.sort((a, b) => nullLast(a, b, 'rsi')); break;
+            case 'rsi-desc':    s.sort((a, b) => nullLast(b, a, 'rsi')); break;
+            case 'upside-desc': s.sort((a, b) => nullLast(b, a, 'analystUpside')); break;
         }
+        return s;
+    }
 
-        async function loadAllData() {
-            isLoading = true;
-            updateApiStatus('loading', 'FETCHING DATA...');
-            showLoading();
-
-            try {
-                // Fetch all exchanges in parallel
-                const [nyse, tsx, nse, crypto, etf] = await Promise.all([
-                    fetchStockData('nyse'),
-                    fetchStockData('tsx'),
-                    fetchStockData('nse'),
-                    fetchStockData('crypto'),
-                    fetchStockData('etf')
-                ]);
-
-                stockData = { nyse, tsx, nse, crypto, etf };
-                apiConnected = true;
-
-                // Update counts
-                document.getElementById('count-nyse').textContent = `${nyse.length} STOCKS`;
-                document.getElementById('count-tsx').textContent = `${tsx.length} STOCKS`;
-                document.getElementById('count-nse').textContent = `${nse.length} STOCKS`;
-                document.getElementById('count-crypto').textContent = `${crypto.length} COINS`;
-                document.getElementById('count-etf').textContent = `${etf.length} FUNDS`;
-
-                updateApiStatus('connected', 'LIVE DATA');
-                renderStocks();
-
-            } catch (error) {
-                console.error('Failed to load data:', error);
-                apiConnected = false;
-                updateApiStatus('error', 'API OFFLINE');
-                showError();
-            }
-
-            isLoading = false;
+    // ============================================================
+    // GET ACTIVE STOCKS (current exchange or watchlist)
+    // ============================================================
+    function getActiveStocks() {
+        if (currentExchange === 'watchlist') {
+            const saved = Array.from(watchlist);
+            const all = Object.values(stockData).flat();
+            return all.filter(s => saved.includes(s.ticker));
         }
+        return stockData[currentExchange] || [];
+    }
 
-        function updateApiStatus(status, text) {
-            const statusEl = document.getElementById('api-status');
-            statusEl.className = `api-status ${status}`;
-            statusEl.querySelector('.status-text').textContent = text;
-        }
-
-        function showLoading() {
-            document.getElementById('stock-grid').innerHTML = `
-                <div class="loading-state">
-                    <div class="loading-spinner"></div>
-                    <div class="loading-text">FETCHING LIVE DATA FROM YFINANCE...</div>
-                </div>
-            `;
-        }
-
-        function showError() {
-            document.getElementById('stock-grid').innerHTML = `
-                <div class="error-state">
-                    <div class="error-icon">⚠</div>
-                    <div class="error-text">API OFFLINE</div>
-                    <div class="error-hint">Start the API server: python api.py</div>
-                    <button class="retry-btn" onclick="loadAllData()">RETRY CONNECTION</button>
-                </div>
-            `;
-        }
-
-        // Auto-refresh data every 60 seconds
-        function startAutoRefresh() {
-            setInterval(() => {
-                if (apiConnected && !isLoading) {
-                    loadAllData();
-                }
-            }, 60000);
-        }
-
-        // ============================================
-        // STATE
-        // ============================================
-        let currentExchange = 'nyse';
-        let currentFilter = 'all';
-        let currentIndustry = 'all';
-        let searchQuery = '';
-        let currentPage = 1;
-        let currentSort = 'ticker';
-        const stocksPerPage = 12;
-
-        // ============================================
-        // UTILITY FUNCTIONS
-        // ============================================
-        function getValuation(peg) {
-            if (peg < 1) return { label: 'UNDERVALUED', class: 'highlight-good', filter: 'undervalued' };
-            if (peg <= 2) return { label: 'FAIR VALUE', class: 'highlight-warn', filter: 'fair' };
-            return { label: 'OVERVALUED', class: 'highlight-bad', filter: 'overvalued' };
-        }
-
-        function getPeComparison(pe, industryPe) {
-            const diff = ((pe - industryPe) / industryPe * 100).toFixed(0);
-            if (diff < -5) return { text: `${diff}% vs IND`, class: 'highlight-good' };
-            if (diff <= 10) return { text: `+${diff}% vs IND`, class: 'highlight-warn' };
-            return { text: `+${diff}% vs IND`, class: 'highlight-bad' };
-        }
-
-        // ============================================
-        // POWER SEARCH PARSER
-        // ============================================
-        function parseAdvancedSearch(query) {
-            const result = {
-                text: '',
-                ticker: null,
-                peMin: null,
-                peMax: null,
-                pegMin: null,
-                pegMax: null,
-                growthMin: null,
-                growthMax: null,
-                industry: null
-            };
-
-            // Split by pipe or space for multiple conditions
-            const parts = query.split(/[\|\s]+/).filter(p => p.trim());
-
-            parts.forEach(part => {
-                const trimmed = part.trim().toLowerCase();
-
-                // ticker:XYZ
-                if (trimmed.startsWith('ticker:')) {
-                    result.ticker = trimmed.replace('ticker:', '').toUpperCase();
-                }
-                // pe<20 or pe>10
-                else if (trimmed.match(/^pe[<>]/)) {
-                    const match = trimmed.match(/^pe([<>])(\d+\.?\d*)/);
-                    if (match) {
-                        if (match[1] === '<') result.peMax = parseFloat(match[2]);
-                        else result.peMin = parseFloat(match[2]);
-                    }
-                }
-                // peg<1 or peg>2
-                else if (trimmed.match(/^peg[<>]/)) {
-                    const match = trimmed.match(/^peg([<>])(\d+\.?\d*)/);
-                    if (match) {
-                        if (match[1] === '<') result.pegMax = parseFloat(match[2]);
-                        else result.pegMin = parseFloat(match[2]);
-                    }
-                }
-                // growth>15 or growth<30
-                else if (trimmed.match(/^growth[<>]/)) {
-                    const match = trimmed.match(/^growth([<>])(\d+\.?\d*)/);
-                    if (match) {
-                        if (match[1] === '<') result.growthMax = parseFloat(match[2]);
-                        else result.growthMin = parseFloat(match[2]);
-                    }
-                }
-                // industry:Tech
-                else if (trimmed.startsWith('industry:')) {
-                    result.industry = part.replace(/industry:/i, '');
-                }
-                // Regular text search
-                else if (!trimmed.startsWith('sort:')) {
-                    result.text += (result.text ? ' ' : '') + trimmed;
-                }
-            });
-
-            return result;
-        }
-
-        function matchesAdvancedSearch(stock, criteria) {
-            // Text search
-            if (criteria.text && !stock.ticker.toLowerCase().includes(criteria.text) &&
-                !stock.name.toLowerCase().includes(criteria.text)) {
-                return false;
-            }
-            // Ticker exact match
-            if (criteria.ticker && !stock.ticker.toUpperCase().includes(criteria.ticker)) {
-                return false;
-            }
-            // PE filters
-            if (criteria.peMin !== null && stock.pe < criteria.peMin) return false;
-            if (criteria.peMax !== null && stock.pe > criteria.peMax) return false;
-            // PEG filters
-            if (criteria.pegMin !== null && stock.peg < criteria.pegMin) return false;
-            if (criteria.pegMax !== null && stock.peg > criteria.pegMax) return false;
-            // Growth filters
-            if (criteria.growthMin !== null && stock.growth < criteria.growthMin) return false;
-            if (criteria.growthMax !== null && stock.growth > criteria.growthMax) return false;
-            // Industry filter
-            if (criteria.industry && !stock.industry.toLowerCase().includes(criteria.industry.toLowerCase())) {
-                return false;
-            }
+    function getFilteredSorted() {
+        const criteria = parseSearch(searchQuery);
+        let stocks = getActiveStocks().filter(stock => {
+            if (!matchesSearch(stock, criteria)) return false;
+            const val = getValuation(stock.peg);
+            if (currentFilter !== 'all' && val.filter !== currentFilter) return false;
+            if (currentIndustry !== 'all' && stock.industry !== currentIndustry) return false;
             return true;
-        }
-
-        // ============================================
-        // SORTING FUNCTION
-        // ============================================
-        function sortStocks(stocks) {
-            const sorted = [...stocks];
-            switch (currentSort) {
-                case 'ticker':
-                    sorted.sort((a, b) => a.ticker.localeCompare(b.ticker));
-                    break;
-                case 'pe-asc':
-                    sorted.sort((a, b) => a.pe - b.pe);
-                    break;
-                case 'pe-desc':
-                    sorted.sort((a, b) => b.pe - a.pe);
-                    break;
-                case 'peg-asc':
-                    sorted.sort((a, b) => a.peg - b.peg);
-                    break;
-                case 'peg-desc':
-                    sorted.sort((a, b) => b.peg - a.peg);
-                    break;
-                case 'price-asc':
-                    sorted.sort((a, b) => a.price - b.price);
-                    break;
-                case 'price-desc':
-                    sorted.sort((a, b) => b.price - a.price);
-                    break;
-                case 'change-desc':
-                    sorted.sort((a, b) => b.change - a.change);
-                    break;
-            }
-            return sorted;
-        }
-
-        // ============================================
-        // RENDER FUNCTIONS
-        // ============================================
-        function renderStocks() {
-            const stocks = stockData[currentExchange];
-            const searchCriteria = parseAdvancedSearch(searchQuery);
-
-            // Apply filters
-            let filtered = stocks.filter(stock => {
-                // Advanced search filter
-                if (!matchesAdvancedSearch(stock, searchCriteria)) return false;
-
-                // Valuation filter
-                const valuation = getValuation(stock.peg);
-                const matchesFilter = currentFilter === 'all' || valuation.filter === currentFilter;
-
-                // Industry filter (from buttons)
-                const matchesIndustry = currentIndustry === 'all' || stock.industry === currentIndustry;
-
-                return matchesFilter && matchesIndustry;
-            });
-
-            // Apply sorting
-            filtered = sortStocks(filtered);
-
-            // Pagination
-            const totalPages = Math.ceil(filtered.length / stocksPerPage);
-            const start = (currentPage - 1) * stocksPerPage;
-            const paginatedStocks = filtered.slice(start, start + stocksPerPage);
-
-            // Update index display
-            const endIdx = Math.min(start + stocksPerPage, filtered.length);
-            document.getElementById('index-display').textContent =
-                `IDX: ${String(start + 1).padStart(3, '0')}-${String(endIdx).padStart(3, '0')} / ${filtered.length}`;
-
-            // Get exchange info
-            const info = exchangeInfo[currentExchange];
-
-            // Render stock cards
-            const grid = document.getElementById('stock-grid');
-            grid.innerHTML = paginatedStocks.map((stock, index) => {
-                const valuation = getValuation(stock.peg);
-                const peComparison = getPeComparison(stock.pe, stock.industryPe);
-                const changeClass = stock.change >= 0 ? 'up' : 'down';
-                const changeSign = stock.change >= 0 ? '+' : '';
-                const globalIdx = String(start + index + 1).padStart(3, '0');
-
-                return `
-                    <div class="stock-card" data-rank="${globalIdx}">
-                        <div class="card-header">
-                            <div>
-                                <div class="ticker">${stock.ticker}</div>
-                                <div class="company-name">${stock.name}</div>
-                            </div>
-                            <div class="price-tag">
-                                <div class="current-price">${info.currency}${stock.price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
-                                <div class="price-change ${changeClass}">${changeSign}${stock.change.toFixed(2)}%</div>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="metric-row">
-                                <span class="metric-label">P/E Ratio (TTM)</span>
-                                <span class="metric-value ${peComparison.class}">${stock.pe.toFixed(2)}<span class="vs-industry">${peComparison.text}</span></span>
-                            </div>
-                            <div class="metric-row">
-                                <span class="metric-label">Forward P/E</span>
-                                <span class="metric-value">${stock.forwardPe.toFixed(2)}</span>
-                            </div>
-                            <div class="metric-row">
-                                <span class="metric-label">PEG Ratio</span>
-                                <span class="metric-value ${valuation.class}">${stock.peg.toFixed(2)}<span class="vs-industry">${valuation.label}</span></span>
-                            </div>
-                            <div class="metric-row">
-                                <span class="metric-label">52-Week High</span>
-                                <span class="metric-value">${info.currency}${stock.week52High.toFixed(2)}<span class="vs-industry ${stock.pctFromHigh >= 0 ? 'highlight-good' : 'highlight-bad'}">${stock.pctFromHigh.toFixed(1)}%</span></span>
-                            </div>
-                            <div class="metric-row">
-                                <span class="metric-label">52-Week Low</span>
-                                <span class="metric-value">${info.currency}${stock.week52Low.toFixed(2)}<span class="vs-industry ${stock.pctFromLow >= 20 ? 'highlight-good' : stock.pctFromLow >= 0 ? 'highlight-warn' : 'highlight-bad'}">${stock.pctFromLow > 0 ? '+' : ''}${stock.pctFromLow.toFixed(1)}%</span></span>
-                            </div>
-                            <div class="metric-row">
-                                <span class="metric-label">5Y EPS Growth</span>
-                                <span class="metric-value">${stock.growth.toFixed(1)}%</span>
-                            </div>
-                            <div class="metric-row">
-                                <span class="metric-label">Industry Avg P/E</span>
-                                <span class="metric-value" style="color: rgba(240,240,232,0.5)">${stock.industryPe.toFixed(2)}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            // Render pagination
-            renderPagination(totalPages, filtered.length);
-
-            // Update stats
-            document.getElementById('stock-count').textContent = filtered.length;
-            document.getElementById('current-exchange').textContent = info.name;
-
-            // Calculate total stocks across all exchanges
-            const totalStocks = Object.values(stockData).reduce((sum, arr) => sum + arr.length, 0);
-            document.getElementById('stats-line').textContent =
-                `${filtered.length} stocks displayed // ${totalStocks} total // ${filtered.length * 5} metrics`;
-        }
-
-        function renderPagination(totalPages, totalStocks) {
-            const pagination = document.getElementById('pagination');
-
-            if (totalPages <= 1) {
-                pagination.innerHTML = `<span class="page-info">SHOWING ALL ${totalStocks} RESULTS</span>`;
-                return;
-            }
-
-            let html = `<span class="page-info">PAGE ${currentPage} OF ${totalPages} // ${totalStocks} RESULTS</span>`;
-            html += '<div class="page-btns">';
-
-            if (currentPage > 1) {
-                html += `<button class="page-btn" data-page="${currentPage - 1}">&lt; PREV</button>`;
-            }
-
-            for (let i = 1; i <= totalPages; i++) {
-                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
-                    html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
-                } else if (i === currentPage - 2 || i === currentPage + 2) {
-                    html += '<span class="page-dots">...</span>';
-                }
-            }
-
-            if (currentPage < totalPages) {
-                html += `<button class="page-btn" data-page="${currentPage + 1}">NEXT &gt;</button>`;
-            }
-
-            html += '</div>';
-            pagination.innerHTML = html;
-
-            // Add click handlers
-            pagination.querySelectorAll('.page-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    currentPage = parseInt(btn.dataset.page);
-                    renderStocks();
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                });
-            });
-        }
-
-        // ============================================
-        // EVENT LISTENERS
-        // ============================================
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentExchange = btn.dataset.exchange;
-                currentPage = 1;
-                renderStocks();
-            });
         });
+        return sortStocks(stocks);
+    }
 
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentFilter = btn.dataset.filter;
-                currentPage = 1;
-                renderStocks();
-            });
-        });
+    // ============================================================
+    // RENDER MAIN VIEW (dispatches to grid or heatmap)
+    // ============================================================
+    function renderView() {
+        const info = exchangeInfo[currentExchange] || exchangeInfo.nyse;
+        document.getElementById('current-exchange').textContent = info.name;
 
-        document.getElementById('stock-search').addEventListener('input', (e) => {
-            searchQuery = e.target.value;
-            currentPage = 1;
+        if (currentView === 'heatmap') {
+            document.getElementById('stock-grid').style.display       = 'none';
+            document.getElementById('heatmap-container').style.display = 'block';
+            document.getElementById('pagination').style.display        = 'none';
+            document.getElementById('section-title').textContent       = 'SECTOR HEATMAP';
+            renderHeatmap();
+        } else {
+            document.getElementById('stock-grid').style.display        = 'grid';
+            document.getElementById('heatmap-container').style.display = 'none';
+            document.getElementById('pagination').style.display        = 'flex';
+            document.getElementById('section-title').textContent       = 'STOCK VALUATIONS';
             renderStocks();
-        });
-
-        document.querySelectorAll('.industry-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.industry-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentIndustry = btn.dataset.industry;
-                currentPage = 1;
-                renderStocks();
-            });
-        });
-
-        // Sort buttons
-        document.querySelectorAll('.sort-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentSort = btn.dataset.sort;
-                currentPage = 1;
-                renderStocks();
-            });
-        });
-
-        // ============================================
-        // KEYBOARD SHORTCUTS (Power User)
-        // ============================================
-        document.addEventListener('keydown', (e) => {
-            // Ctrl+K - Focus search
-            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-                e.preventDefault();
-                document.getElementById('stock-search').focus();
-            }
-            // Ctrl+1-5 - Switch exchanges
-            if ((e.ctrlKey || e.metaKey) && e.key >= '1' && e.key <= '5') {
-                e.preventDefault();
-                const exchanges = ['nyse', 'tsx', 'nse', 'crypto', 'etf'];
-                const idx = parseInt(e.key) - 1;
-                if (idx < exchanges.length) {
-                    currentExchange = exchanges[idx];
-                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                    document.querySelector(`[data-exchange="${exchanges[idx]}"]`).classList.add('active');
-                    currentPage = 1;
-                    renderStocks();
-                }
-            }
-            // Ctrl+R - Refresh data
-            if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
-                e.preventDefault();
-                loadAllData();
-            }
-            // Escape - Clear search
-            if (e.key === 'Escape') {
-                document.getElementById('stock-search').value = '';
-                searchQuery = '';
-                currentPage = 1;
-                renderStocks();
-                document.getElementById('stock-search').blur();
-            }
-        });
-
-        // ============================================
-        // TIMESTAMP
-        // ============================================
-        function updateTime() {
-            const now = new Date();
-            const options = {
-                weekday: 'short',
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
-            };
-            document.getElementById('timestamp').textContent = now.toLocaleDateString('en-US', options).toUpperCase();
         }
-        updateTime();
-        setInterval(updateTime, 1000);
+    }
 
-        // ============================================
-        // INITIALIZE
-        // ============================================
-        loadAllData();
-        startAutoRefresh();
+    // ============================================================
+    // RENDER STOCK GRID
+    // ============================================================
+    function renderStocks() {
+        const filtered = getFilteredSorted();
+        const totalPages = Math.ceil(filtered.length / STOCKS_PER_PAGE);
+        if (currentPage > totalPages) currentPage = 1;
+
+        const start = (currentPage - 1) * STOCKS_PER_PAGE;
+        const page  = filtered.slice(start, start + STOCKS_PER_PAGE);
+
+        const end = Math.min(start + STOCKS_PER_PAGE, filtered.length);
+        document.getElementById('index-display').textContent =
+            `IDX: ${String(start + 1).padStart(3, '0')}-${String(end).padStart(3, '0')} / ${filtered.length}`;
+
+        const info = exchangeInfo[currentExchange] || exchangeInfo.nyse;
+        const cur  = info.currency;
+
+        document.getElementById('stock-grid').innerHTML = page.map((stock, i) => {
+            const idx        = String(start + i + 1).padStart(3, '0');
+            const valuation  = getValuation(stock.peg);
+            const changeClass = stock.change >= 0 ? 'up' : 'down';
+            const changeSign  = stock.change >= 0 ? '+' : '';
+            const isWL        = watchlist.has(stock.ticker);
+
+            // Technical row
+            const techRow = buildTechRow(stock, cur);
+
+            // Analyst upside % from current price
+            const upsideHtml = stock.analystUpside !== null
+                ? `<span class="vs-industry ${upsideClass(stock.analystUpside)}">${stock.analystUpside > 0 ? '+' : ''}${fmt(stock.analystUpside, 1)}% UPSIDE</span>`
+                : '';
+
+            return `
+            <div class="stock-card" data-rank="${idx}" data-ticker="${stock.ticker}" data-exchange="${currentExchange}">
+                <button class="watchlist-btn ${isWL ? 'active' : ''}" onclick="toggleWatchlist('${stock.ticker}')" title="CTRL+W to add">★</button>
+                <div class="card-header">
+                    <div>
+                        <div class="ticker">${stock.ticker}</div>
+                        <div class="company-name">${stock.name}</div>
+                        ${buildSentimentBadge(stock.ticker)}
+                    </div>
+                    <div class="price-tag">
+                        <div class="current-price">${cur}${stock.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                        <div class="price-change ${changeClass}">${changeSign}${stock.change.toFixed(2)}%</div>
+                    </div>
+                </div>
+                ${techRow}
+                <div class="card-body">
+                    <div class="metrics-section-label">VALUATION</div>
+                    <div class="metric-row">
+                        <span class="metric-label">P/E (TTM)</span>
+                        <span class="metric-value ${getPeClass(stock.pe, stock.industryPe)}">${fmt(stock.pe)}${stock.pe && stock.industryPe ? `<span class="vs-industry">${getPeLabel(stock.pe, stock.industryPe)}</span>` : ''}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Forward P/E</span>
+                        <span class="metric-value">${fmt(stock.forwardPe)}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">PEG Ratio</span>
+                        <span class="metric-value ${valuation.class}">${fmt(stock.peg)}${stock.peg !== null ? `<span class="vs-industry">${valuation.label}</span>` : ''}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">5Y EPS Growth</span>
+                        <span class="metric-value">${fmtPct(stock.growth, 1)}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Industry Avg P/E</span>
+                        <span class="metric-value" style="color:rgba(240,240,232,0.45)">${fmt(stock.industryPe)}</span>
+                    </div>
+
+                    <div class="metrics-section-label">52-WEEK RANGE</div>
+                    <div class="metric-row">
+                        <span class="metric-label">52W High</span>
+                        <span class="metric-value">${fmtCurrency(stock.week52High, cur)}<span class="vs-industry ${stock.pctFromHigh !== null && stock.pctFromHigh >= 0 ? 'highlight-good' : 'highlight-bad'}">${fmtPct(stock.pctFromHigh, 1, true)}</span></span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">52W Low</span>
+                        <span class="metric-value">${fmtCurrency(stock.week52Low, cur)}<span class="vs-industry ${stock.pctFromLow !== null && stock.pctFromLow >= 20 ? 'highlight-good' : stock.pctFromLow !== null && stock.pctFromLow >= 0 ? 'highlight-warn' : 'highlight-bad'}">${fmtPct(stock.pctFromLow, 1, true)}</span></span>
+                    </div>
+
+                    <div class="metrics-section-label">RISK + INCOME</div>
+                    <div class="metric-row">
+                        <span class="metric-label">Beta</span>
+                        <span class="metric-value ${betaClass(stock.beta)}">${fmt(stock.beta)}${stock.beta !== null ? `<span class="vs-industry">${betaLabel(stock.beta)}</span>` : ''}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Dividend Yield</span>
+                        <span class="metric-value ${stock.dividendYield !== null && stock.dividendYield > 3 ? 'highlight-warn' : ''}">${fmtPct(stock.dividendYield, 2)}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Short Ratio</span>
+                        <span class="metric-value ${stock.shortRatio !== null && stock.shortRatio > 10 ? 'highlight-bad' : ''}">${fmt(stock.shortRatio, 1)}${stock.shortRatio !== null && stock.shortRatio > 10 ? '<span class="vs-industry highlight-bad">HIGH SHORT</span>' : ''}</span>
+                    </div>
+
+                    <div class="metrics-section-label">ANALYST</div>
+                    <div class="metric-row">
+                        <span class="metric-label">Rating</span>
+                        <span class="metric-value ${analystClass(stock.analystRating)}">${analystLabel(stock.analystRating)}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Price Target</span>
+                        <span class="metric-value">${fmtCurrency(stock.analystTarget, cur)}${upsideHtml}</span>
+                    </div>
+
+                    <div class="metrics-section-label">BALANCE SHEET</div>
+                    <div class="metric-row">
+                        <span class="metric-label">Debt / Equity</span>
+                        <span class="metric-value ${stock.debtToEquity !== null && stock.debtToEquity > 200 ? 'highlight-bad' : ''}">${fmt(stock.debtToEquity, 1)}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">ROE</span>
+                        <span class="metric-value ${stock.roe !== null && stock.roe > 15 ? 'highlight-good' : ''}">${fmtPct(stock.roe, 1)}</span>
+                    </div>
+
+                    <div class="metrics-section-label">MARKET DATA</div>
+                    <div class="metric-row">
+                        <span class="metric-label">Volume</span>
+                        <span class="metric-value">${fmtVol(stock.volume)}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Market Cap</span>
+                        <span class="metric-value">${cur}${fmtCap(stock.marketCap)}</span>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+
+        renderPagination(totalPages, filtered.length);
+
+        const total = Object.values(stockData).reduce((n, a) => n + a.length, 0);
+        document.getElementById('stock-count').textContent = filtered.length;
+        document.getElementById('stats-line').textContent =
+            `${filtered.length} displayed // ${total} total // ${filtered.length * 17} metrics evaluated`;
+
+        // Lazy-load sentiment for visible tickers
+        lazyLoadSentiment(page.map(s => s.ticker));
+    }
+
+    function buildTechRow(stock, cur) {
+        if (stock.rsi === null && stock.ma50 === null && stock.ma200 === null) return '';
+        const maArrow = (price, ma) => ma !== null ? (price > ma ? '↑' : '↓') : '';
+
+        return `<div class="tech-row">
+            <span class="tech-item ${rsiClass(stock.rsi)}">RSI ${fmt(stock.rsi, 1)}${stock.rsi !== null ? ` <span class="tech-tag">${rsiLabel(stock.rsi)}</span>` : ''}</span>
+            ${stock.ma50 !== null ? `<span class="tech-item">MA50 ${cur}${fmt(stock.ma50)} <span class="${stock.price > stock.ma50 ? 'tech-up' : 'tech-down'}">${maArrow(stock.price, stock.ma50)}</span></span>` : ''}
+            ${stock.ma200 !== null ? `<span class="tech-item">MA200 ${cur}${fmt(stock.ma200)} <span class="${stock.price > stock.ma200 ? 'tech-up' : 'tech-down'}">${maArrow(stock.price, stock.ma200)}</span></span>` : ''}
+            ${stock.goldenCross ? `<span class="tech-item golden-cross">✦ GOLDEN CROSS</span>` : ''}
+        </div>`;
+    }
+
+    // ============================================================
+    // RENDER HEATMAP
+    // ============================================================
+    function renderHeatmap() {
+        const stocks = getActiveStocks().filter(s => s.price > 0);
+        const sectors = {};
+
+        stocks.forEach(s => {
+            if (!sectors[s.industry]) sectors[s.industry] = { changes: [], cap: 0, count: 0 };
+            sectors[s.industry].changes.push(s.change);
+            sectors[s.industry].cap += s.marketCap || 0;
+            sectors[s.industry].count++;
+        });
+
+        const cells = Object.entries(sectors).map(([name, d]) => {
+            const avg = d.changes.reduce((a, b) => a + b, 0) / d.changes.length;
+            return { name, avg, cap: d.cap, count: d.count };
+        }).sort((a, b) => b.cap - a.cap);
+
+        const maxAbs = Math.max(...cells.map(c => Math.abs(c.avg)), 0.1);
+
+        const html = cells.map(c => {
+            const ratio = c.avg / maxAbs;  // -1 to 1
+            let bg;
+            if (ratio > 0) {
+                const g = Math.round(100 + 155 * ratio);
+                bg = `rgb(0, ${g}, 50)`;
+            } else {
+                const r = Math.round(150 + 105 * Math.abs(ratio));
+                bg = `rgb(${r}, 30, 30)`;
+            }
+            const sign = c.avg >= 0 ? '+' : '';
+            return `
+            <div class="heatmap-cell" style="background:${bg}" onclick="filterBySector('${c.name}')">
+                <div class="heatmap-sector">${c.name.toUpperCase()}</div>
+                <div class="heatmap-change ${c.avg >= 0 ? 'up' : 'down'}">${sign}${c.avg.toFixed(2)}%</div>
+                <div class="heatmap-meta">${c.count} stocks · ${c.cap ? '$' + fmtCap(c.cap) : '—'}</div>
+            </div>`;
+        }).join('');
+
+        document.getElementById('heatmap-container').innerHTML =
+            `<div class="heatmap-grid">${html}</div>
+             <div class="heatmap-legend">
+                <span style="color:var(--signal-green)">■ POSITIVE</span>
+                <span style="color:rgba(240,240,232,0.4)">CLICK SECTOR TO FILTER GRID</span>
+                <span style="color:var(--brutal-red)">■ NEGATIVE</span>
+             </div>`;
+    }
+
+    function filterBySector(sector) {
+        currentView     = 'grid';
+        currentIndustry = sector;
+        currentPage     = 1;
+        document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === 'grid'));
+        document.querySelectorAll('.industry-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.industry === sector);
+        });
+        renderView();
+    }
+
+    // ============================================================
+    // RENDER EARNINGS RADAR
+    // ============================================================
+    function renderEarnings() {
+        const ex = currentExchange === 'watchlist' ? 'nyse' : currentExchange;
+        const data = earningsData[ex];
+        const label = document.getElementById('earnings-exchange-label');
+        label.textContent = `// ${ex.toUpperCase()}`;
+
+        if (!data) {
+            document.getElementById('earnings-body').innerHTML =
+                '<div style="padding:20px;color:var(--warning-yellow)">FETCHING EARNINGS DATA...</div>';
+            fetchEarnings(ex);
+            return;
+        }
+
+        if (!data.length) {
+            document.getElementById('earnings-body').innerHTML =
+                '<div style="padding:20px;color:rgba(240,240,232,0.4)">NO UPCOMING EARNINGS DATA AVAILABLE</div>';
+            return;
+        }
+
+        document.getElementById('earnings-body').innerHTML = `
+            <table class="earnings-table">
+                <thead>
+                    <tr>
+                        <th>TICKER</th><th>COMPANY</th><th>EARNINGS DATE</th>
+                        <th>EPS EST</th><th>REVENUE EST</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${data.slice(0, 15).map(e => `
+                    <tr>
+                        <td class="earn-ticker">${e.ticker}</td>
+                        <td class="earn-name">${e.name}</td>
+                        <td class="earn-date">${e.earningsDate || '—'}</td>
+                        <td class="earn-val">${e.epsEstimate !== null ? '$' + fmt(e.epsEstimate) : '—'}</td>
+                        <td class="earn-val">${e.revenueEstimate ? '$' + fmtCap(e.revenueEstimate) : '—'}</td>
+                    </tr>`).join('')}
+                </tbody>
+            </table>`;
+    }
+
+    // ============================================================
+    // WATCHLIST
+    // ============================================================
+    function toggleWatchlist(ticker) {
+        if (watchlist.has(ticker)) {
+            watchlist.delete(ticker);
+        } else {
+            watchlist.add(ticker);
+        }
+        localStorage.setItem('fb_watchlist', JSON.stringify(Array.from(watchlist)));
+        document.getElementById('count-watchlist').textContent = `${watchlist.size} SAVED`;
+
+        // Update button state in current view
+        document.querySelectorAll(`.stock-card[data-ticker="${ticker}"] .watchlist-btn`).forEach(btn => {
+            btn.classList.toggle('active', watchlist.has(ticker));
+        });
+
+        if (currentExchange === 'watchlist') renderView();
+    }
+
+    // ============================================================
+    // CSV EXPORT
+    // ============================================================
+    function exportCSV() {
+        const stocks = getFilteredSorted();
+        const headers = [
+            'Ticker','Name','Price','Change%','PE','ForwardPE','PEG','Growth%',
+            'Industry','Beta','DivYield%','ShortRatio','AnalystRating','AnalystTarget',
+            'AnalystUpside%','DebtToEquity','ROE%','RSI','MA50','MA200','GoldenCross',
+            '52WkHigh','52WkLow','PctFromHigh','PctFromLow','Volume','MarketCap'
+        ];
+        const rows = stocks.map(s => [
+            s.ticker, `"${s.name}"`, s.price, s.change, s.pe, s.forwardPe, s.peg, s.growth,
+            s.industry, s.beta, s.dividendYield, s.shortRatio, s.analystRating,
+            s.analystTarget, s.analystUpside, s.debtToEquity, s.roe, s.rsi,
+            s.ma50, s.ma200, s.goldenCross,
+            s.week52High, s.week52Low, s.pctFromHigh, s.pctFromLow,
+            s.volume, s.marketCap
+        ].map(v => v === null || v === undefined ? '' : v));
+
+        const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = `financebro_${currentExchange}_${new Date().toISOString().slice(0,10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    // ============================================================
+    // PAGINATION
+    // ============================================================
+    function renderPagination(totalPages, total) {
+        const el = document.getElementById('pagination');
+        if (totalPages <= 1) {
+            el.innerHTML = `<span class="page-info">SHOWING ALL ${total} RESULTS</span>`;
+            return;
+        }
+        let html = `<span class="page-info">PAGE ${currentPage} OF ${totalPages} // ${total} RESULTS</span><div class="page-btns">`;
+        if (currentPage > 1) html += `<button class="page-btn" data-page="${currentPage - 1}">&lt; PREV</button>`;
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+            } else if (i === currentPage - 2 || i === currentPage + 2) {
+                html += '<span class="page-dots">...</span>';
+            }
+        }
+        if (currentPage < totalPages) html += `<button class="page-btn" data-page="${currentPage + 1}">NEXT &gt;</button>`;
+        html += '</div>';
+        el.innerHTML = html;
+        el.querySelectorAll('.page-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentPage = parseInt(btn.dataset.page);
+                renderView();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+    }
+
+    // ============================================================
+    // EVENT LISTENERS
+    // ============================================================
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentExchange = btn.dataset.exchange;
+            currentPage     = 1;
+            renderView();
+            if (currentExchange !== 'watchlist') fetchEarnings(currentExchange);
+        });
+    });
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentFilter = btn.dataset.filter;
+            currentPage   = 1;
+            renderView();
+        });
+    });
+
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentSort = btn.dataset.sort;
+            currentPage = 1;
+            renderView();
+        });
+    });
+
+    document.querySelectorAll('.industry-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.industry-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentIndustry = btn.dataset.industry;
+            currentPage     = 1;
+            renderView();
+        });
+    });
+
+    document.querySelectorAll('.view-btn[data-view]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.view-btn[data-view]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentView = btn.dataset.view;
+            renderView();
+        });
+    });
+
+    document.getElementById('stock-search').addEventListener('input', e => {
+        searchQuery = e.target.value;
+        currentPage = 1;
+        renderView();
+    });
+
+    document.getElementById('export-btn').addEventListener('click', exportCSV);
+
+    document.getElementById('earnings-toggle').addEventListener('click', () => {
+        earningsOpen = !earningsOpen;
+        const panel = document.getElementById('earnings-radar');
+        panel.style.display = earningsOpen ? 'block' : 'none';
+        document.getElementById('earnings-toggle').textContent = earningsOpen ? '▲ RADAR' : '▼ RADAR';
+        if (earningsOpen) renderEarnings();
+    });
+
+    document.getElementById('earnings-close').addEventListener('click', () => {
+        earningsOpen = false;
+        document.getElementById('earnings-radar').style.display = 'none';
+        document.getElementById('earnings-toggle').textContent  = '▼ RADAR';
+    });
+
+    // ============================================================
+    // KEYBOARD SHORTCUTS
+    // ============================================================
+    document.addEventListener('keydown', e => {
+        const mod = e.ctrlKey || e.metaKey;
+        if (mod && e.key === 'k') { e.preventDefault(); document.getElementById('stock-search').focus(); }
+        if (mod && e.key === 'e') { e.preventDefault(); exportCSV(); }
+        if (mod && e.key === 'r') { e.preventDefault(); loadAllData(); }
+        if (mod && e.key === 'w') {
+            e.preventDefault();
+            // Add first visible card's stock to watchlist
+            const first = document.querySelector('.stock-card');
+            if (first) toggleWatchlist(first.dataset.ticker);
+        }
+        if (mod && e.key >= '1' && e.key <= '5') {
+            e.preventDefault();
+            const exchanges = ['nyse', 'tsx', 'nse', 'crypto', 'etf'];
+            const idx = parseInt(e.key) - 1;
+            if (idx < exchanges.length) {
+                currentExchange = exchanges[idx];
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelector(`[data-exchange="${exchanges[idx]}"]`).classList.add('active');
+                currentPage = 1;
+                renderView();
+            }
+        }
+        if (e.key === 'Escape') {
+            document.getElementById('stock-search').value = '';
+            searchQuery = '';
+            currentPage = 1;
+            renderView();
+            document.getElementById('stock-search').blur();
+        }
+    });
+
+    // ============================================================
+    // TIMESTAMP
+    // ============================================================
+    function updateTime() {
+        document.getElementById('timestamp').textContent =
+            new Date().toLocaleDateString('en-US', {
+                weekday: 'short', year: 'numeric', month: 'short',
+                day: 'numeric', hour: '2-digit', minute: '2-digit',
+                second: '2-digit', hour12: false
+            }).toUpperCase();
+    }
+    updateTime();
+    setInterval(updateTime, 1000);
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    document.getElementById('count-watchlist').textContent = `${watchlist.size} SAVED`;
+    loadAllData();
+    startAutoRefresh();
     </script>
 </body>
 </html>
-

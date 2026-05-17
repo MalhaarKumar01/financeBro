@@ -1250,3 +1250,373 @@ header::before {
     transform: translate(-3px, -3px);
     box-shadow: 6px 6px 0 var(--brutal-red);
 }
+
+/* ========================================
+   HEADER ACTIONS (export btn)
+   ======================================== */
+.header-actions {
+    position: absolute;
+    top: 30px;
+    right: 160px;
+}
+
+.export-btn {
+    background: transparent;
+    border: 2px solid var(--warning-yellow);
+    padding: 8px 18px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    color: var(--warning-yellow);
+    cursor: pointer;
+    letter-spacing: 0.1em;
+    transition: all 0.2s ease;
+}
+
+.export-btn:hover {
+    background: var(--warning-yellow);
+    color: var(--bg-black);
+}
+
+/* ========================================
+   VIEW TOGGLE BAR
+   ======================================== */
+.view-toggle-bar {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 15px;
+    border: var(--border-thick) solid rgba(240, 240, 232, 0.2);
+    background: var(--grid-gray);
+}
+
+.view-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.9rem;
+    color: rgba(240, 240, 232, 0.5);
+    letter-spacing: 0.1em;
+    margin-right: 4px;
+}
+
+.view-btn {
+    background: transparent;
+    border: 2px solid rgba(240, 240, 232, 0.3);
+    padding: 6px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(240, 240, 232, 0.5);
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: all 0.2s ease;
+}
+
+.view-btn:hover {
+    color: var(--raw-white);
+    border-color: var(--raw-white);
+}
+
+.view-btn.active {
+    background: var(--raw-white);
+    color: var(--bg-black);
+    border-color: var(--raw-white);
+}
+
+/* ========================================
+   WATCHLIST TAB
+   ======================================== */
+.watchlist-tab {
+    border-left: var(--border-thick) solid var(--warning-yellow) !important;
+}
+
+.watchlist-tab.active {
+    background: var(--warning-yellow);
+    color: var(--bg-black);
+}
+
+/* ========================================
+   WATCHLIST BUTTON ON CARD
+   ======================================== */
+.watchlist-btn {
+    position: absolute;
+    top: -18px;
+    right: -18px;
+    width: 36px;
+    height: 36px;
+    background: var(--grid-gray);
+    border: 2px solid var(--raw-white);
+    color: rgba(240, 240, 232, 0.3);
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.watchlist-btn:hover,
+.watchlist-btn.active {
+    background: var(--warning-yellow);
+    color: var(--bg-black);
+    border-color: var(--warning-yellow);
+}
+
+/* ========================================
+   METRICS SECTION LABELS
+   ======================================== */
+.metrics-section-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    color: var(--data-blue);
+    padding: 10px 0 4px;
+    border-bottom: 1px solid var(--data-blue);
+    margin-bottom: 4px;
+    opacity: 0.8;
+}
+
+.metrics-section-label:first-child {
+    padding-top: 0;
+}
+
+/* ========================================
+   TECHNICAL ROW
+   ======================================== */
+.tech-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 20px;
+    background: rgba(0, 0, 0, 0.4);
+    border-bottom: 2px solid rgba(240, 240, 232, 0.1);
+    align-items: center;
+}
+
+.tech-item {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(240, 240, 232, 0.7);
+    letter-spacing: 0.04em;
+}
+
+.tech-item.highlight-good { color: var(--signal-green); }
+.tech-item.highlight-bad  { color: var(--brutal-red); }
+.tech-item.highlight-warn { color: var(--warning-yellow); }
+
+.tech-tag {
+    font-size: 0.55rem;
+    padding: 1px 5px;
+    border: 1px solid currentColor;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+.tech-up   { color: var(--signal-green); }
+.tech-down { color: var(--brutal-red); }
+
+.golden-cross {
+    color: var(--warning-yellow);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+}
+
+/* ========================================
+   SENTIMENT BADGE
+   ======================================== */
+.sentiment-badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    margin-top: 4px;
+    letter-spacing: 0.06em;
+    border: 1px solid currentColor;
+}
+
+.sentiment-bullish {
+    color: var(--bg-black);
+    background: var(--signal-green);
+    border-color: var(--signal-green);
+}
+
+.sentiment-bearish {
+    color: var(--raw-white);
+    background: var(--brutal-red);
+    border-color: var(--brutal-red);
+}
+
+.sentiment-neutral {
+    color: var(--bg-black);
+    background: var(--warning-yellow);
+    border-color: var(--warning-yellow);
+}
+
+.sentiment-loading {
+    color: rgba(240, 240, 232, 0.3);
+    background: transparent;
+    border-color: rgba(240, 240, 232, 0.2);
+}
+
+/* ========================================
+   HEATMAP
+   ======================================== */
+.heatmap-container {
+    grid-column: 1 / -1;
+}
+
+.heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 4px;
+    margin-bottom: 12px;
+}
+
+.heatmap-cell {
+    padding: 25px 20px;
+    cursor: pointer;
+    border: 2px solid rgba(0, 0, 0, 0.3);
+    transition: all 0.15s ease;
+    position: relative;
+}
+
+.heatmap-cell:hover {
+    border-color: var(--raw-white);
+    transform: scale(1.02);
+    z-index: 2;
+}
+
+.heatmap-sector {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+
+.heatmap-change {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 4px 0;
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+}
+
+.heatmap-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.05em;
+}
+
+.heatmap-legend {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+    border: 2px solid rgba(240, 240, 232, 0.1);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    background: var(--grid-gray);
+}
+
+/* ========================================
+   EARNINGS RADAR
+   ======================================== */
+.earnings-radar {
+    grid-column: 1 / -1;
+    border: var(--border-thick) solid var(--warning-yellow);
+    background: var(--grid-gray);
+    margin-top: 10px;
+}
+
+.earnings-header {
+    background: var(--warning-yellow);
+    color: var(--bg-black);
+    padding: 12px 20px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.1em;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.earnings-close {
+    margin-left: auto;
+    background: transparent;
+    border: 2px solid var(--bg-black);
+    padding: 4px 12px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    color: var(--bg-black);
+    cursor: pointer;
+    letter-spacing: 0.1em;
+}
+
+.earnings-close:hover {
+    background: var(--bg-black);
+    color: var(--warning-yellow);
+}
+
+.earnings-body {
+    overflow-x: auto;
+}
+
+.earnings-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+}
+
+.earnings-table th {
+    background: var(--bg-black);
+    padding: 12px 20px;
+    text-align: left;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    border-bottom: 2px solid var(--warning-yellow);
+    color: var(--warning-yellow);
+}
+
+.earnings-table td {
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(240, 240, 232, 0.08);
+}
+
+.earnings-table tr:hover td {
+    background: rgba(255, 204, 0, 0.07);
+}
+
+.earn-ticker {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    color: var(--raw-white);
+}
+
+.earn-name {
+    color: rgba(240, 240, 232, 0.6);
+    font-size: 0.75rem;
+}
+
+.earn-date {
+    color: var(--warning-yellow);
+    letter-spacing: 0.05em;
+}
+
+.earn-val {
+    color: var(--signal-green);
+}
+
+/* ========================================
+   RESPONSIVE — new components
+   ======================================== */
+@media (max-width: 768px) {
+    .header-actions { display: none; }
+    .view-toggle-bar { flex-wrap: wrap; gap: 6px; }
+    .heatmap-grid { grid-template-columns: repeat(2, 1fr); }
+    .tech-row { padding: 6px 12px; }
+    .metrics-section-label { font-size: 0.65rem; }
+}
