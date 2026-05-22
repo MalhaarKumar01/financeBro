@@ -399,33 +399,56 @@
         }
     }
 
-    async function fetchSentiment(ticker) {
-        if (sentimentData[ticker] !== undefined) return;
-        sentimentData[ticker] = null; // mark as in-flight
+    async function fetchSentiment(ticker, retryCount = 0) {
+        // Don't re-fetch if we already have a final result
+        const existing = sentimentData[ticker];
+        if (existing && existing.status === 'ready') return;
+        if (existing && existing.status !== 'pending' && existing.available === false && retryCount === 0) return;
+
+        sentimentData[ticker] = sentimentData[ticker] || { status: 'pending', available: false };
+
         try {
             const r = await fetch(`${API_BASE}/api/sentiment/${ticker}`);
-            if (!r.ok) return;
-            sentimentData[ticker] = await r.json();
-            // Update badge in DOM if card is still visible
+            if (!r.ok) { sentimentData[ticker] = { available: false, status: 'error' }; return; }
+            const data = await r.json();
+            sentimentData[ticker] = data;
+
+            // Update badge in DOM if the card is still rendered
             const badge = document.getElementById(`sent-${ticker}`);
             if (badge) badge.outerHTML = buildSentimentBadge(ticker);
+
+            // Backend is still computing — re-poll once after 4 seconds
+            if (data.status === 'pending' && retryCount < 3) {
+                setTimeout(() => fetchSentiment(ticker, retryCount + 1), 4000);
+            }
         } catch (e) {
-            sentimentData[ticker] = { available: false };
+            sentimentData[ticker] = { available: false, status: 'error' };
         }
     }
 
     function lazyLoadSentiment(tickers) {
         tickers.forEach((ticker, i) => {
-            setTimeout(() => fetchSentiment(ticker), i * 150);
+            // Stagger requests 200ms apart so we don't flood the server
+            setTimeout(() => fetchSentiment(ticker), i * 200);
         });
     }
 
     function buildSentimentBadge(ticker) {
         const s = sentimentData[ticker];
-        if (!s || !s.available) return `<span id="sent-${ticker}" class="sentiment-badge sentiment-loading">⊙ LOADING SENTIMENT</span>`;
-        const cls  = sentimentClass(s.sentimentLabel);
-        const icon = sentimentIcon(s.sentimentLabel);
-        return `<span id="sent-${ticker}" class="sentiment-badge ${cls}">${icon} ${s.sentimentLabel} ${s.mentions ? `· ${s.mentions} MENTIONS` : ''}</span>`;
+
+        if (!s || s.status === 'pending') {
+            return `<span id="sent-${ticker}" class="sentiment-badge sentiment-loading">⊙ ANALYSING...</span>`;
+        }
+        if (!s.available || s.status === 'error' || s.status === 'unavailable') {
+            return `<span id="sent-${ticker}" class="sentiment-badge sentiment-loading">— NO SENTIMENT</span>`;
+        }
+
+        const cls        = sentimentClass(s.sentimentLabel);
+        const icon       = sentimentIcon(s.sentimentLabel);
+        const confidence = s.confidence ? ` [${s.confidence}]` : '';
+        const mentions   = s.mentions   ? ` · ${s.mentions}` : '';
+
+        return `<span id="sent-${ticker}" class="sentiment-badge ${cls}" title="${s.topPost || ''}">${icon} ${s.sentimentLabel}${mentions}${confidence}</span>`;
     }
 
     // ============================================================

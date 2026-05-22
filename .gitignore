@@ -3,3 +3,5 @@ __pycache__/
 *.pyc
 .DS_Store
 src/__pycache__/
+src/sentiment/__pycache__/
+src/sentiment/sentiment_cache.db
